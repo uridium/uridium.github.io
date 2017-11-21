@@ -1,0 +1,2449 @@
+Swap w pliku:
+
+dd if=/dev/zero of=/swap bs=50M count=10
+chmod 600 /swap
+mkswap /swap
+swapon /swap
+
+w /etc/fstab dopisac:
+
+/swap            none            swap    sw              0       0
+
+--
+Ext3 w pliku:
+
+dd if=/dev/zero of=plik bs=1M count=100
+mkfs.ext2 -b 2048 plik
+mkdir dysk
+mount plik dysk -o loop
+
+skopiowac dane do dysk (beda zapisane do plik)
+
+umount dysk
+
+--
+Zablokowanie alt+ctrl+backspace w X-ach:
+
+w /etc/X11/XF86Config(-4) dopisac sekcje:
+
+Section "ServerFlags"
+	Option	"DontZap"	"on"
+EndSection
+
+--
+Zablokowanie alt+ctrl+Fn w X-ach:
+
+w /etc/X11/XF86Config(-4) dopisac sekcje:
+
+Section "ServerFlags"
+	Option	"DontVTSwitch"	"on"
+EndSection
+
+--
+Pakowanie, rozpakowywanie, przegladanie i czytanie archiwow:
+
+pakowanie gz:
+	tar zcvf plik.tar.gz plik
+rozpakowanie gz:
+	tar zxvf plik.tar.gz
+przegladanie gz:
+	tar ztvf plik.tar.gz
+czytanie gz:
+	tar Ozxvf plik.tar.gz
+
+pakowanie bz2:
+	tar jcvf plik.tar.bz2 plik
+rozpakowanie bz2:
+	tar jxvf plik.tar.bz2
+przegladanie bz2:
+	tar jtvf plik.tar.bz2
+czytanie bz2:
+	tar Ojxvf plik.tar.bz2
+
+--
+Backupy (bz2) po SSH:
+
+kopia stad > tam:
+	tar cvf - plik | bzip2 -f9 | ssh user@host "cat >plik.tar.bz2"
+
+rozpakowanie stad > tam:
+	cat plik.tar.bz2 | ssh user@host "tar jxvf -"
+
+kopia stamtad > tu:
+	ssh user@host "tar cvf - plik|bzip2 -f9" | cat >plik.tar.bz2
+ gdy chcemy skopiowac pliki bez struktury katalogow:
+    ssh user@host 'tar zcvf - -C /path/to/dir .' | tar zxvf -
+
+rozpakowanie stamtad > tu:
+	ssh user@host "cat plik.tar.bz2" | tar jxvf -
+
+kopia sparse file stamtad tu, z rozpakowniem:
+
+    ssh konto@host "cd /path/to/directory; tar Scvf - 6358*" | tar Sxf -
+
+--
+Tunelowanie SSH:
+
+slucha lokalnie na 8888 i przekazuje na <host_docelowy>:<port_docelowy>
+	ssh user@host -L8888:<host_docelowy>:<port_docelowy>
+
+slucha zdalnie na 8888 i przekazuje na <host_docelowy>:<port_docelowy>
+	ssh user@host -R 8888:<host_docelowy>:<port_docelowy>
+
+--
+Tunelowanie Stunnel
+
+Tunel SSL od klienta: localhost:8888 > tam:443
+	stunnel -c -d localhost:8888 -r <zdalny_host>:443
+
+Tunel przy braku wsparcia SSL na serwerze:
+	stunnel -d <adres_serwera>:443 -r localhost:80
+
+--
+Szyfrowanie i deszyfrowanie plików gpg:
+
+gpg -c plik
+gpg --decrypt plik.gpg >plik
+
+--
+Potwierdzenienie przy dostaniu maila:
+
+Disposition-Notification-To: <adres@email.pl>
+
+--
+podglad klas htb:
+
+watch -n1 'tc -d -s -r class show dev eth0'
+
+--
+Przestawienie partycji ext2 na ext3:
+
+tune2fs -j /dev/hda2
+
+zmiana ext2 na ext3 w /etc/fstab
+uruchomic ponownie system
+
+--
+sysrq w proc:
+
+force reboot:
+
+echo 1 > /proc/sys/kernel/sysrq
+echo b > /proc/sysrq-trigger
+
+force shutdown:
+
+echo 1 > /proc/sys/kernel/sysrq
+echo o > /proc/sysrq-trigger
+
+sync all filesystems:
+
+echo 1 > /proc/sys/kernel/sysrq
+echo s > /proc/sysrq-trigger
+
+remount all filesystems read-only:
+
+echo 1 > /proc/sys/kernel/sysrq
+echo u > /proc/sysrq-trigger
+
+--
+Rozdzielczosc w konsoli (grub):
+
+640x480  800x600  1024x768  1280x1024
+  256  0x301  0x303  0x305  0x307
+  32k  0x310  0x313  0x316  0x319
+  64k  0x311  0x314  0x317  0x31A
+  16M  0x312  0x315  0x318  0x31B
+
+(najlepiej vga=0x305)
+
+--
+Oskryptowanie sesji FTP:
+
+ftp -vin << EOF
+open ftp_server
+user username password
+ls
+bye
+EOF
+
+--
+Utworzenie ISO:
+
+mkisofs -r -o name_of.iso /path/to/dir
+
+--
+Kopia cd:
+
+dd if=/dev/cdrom of=/cd.iso
+
+--
+Czyszczenie plyty cdrw:
+
+cdrecord -v /dev/=/dev/cdrom blank=fast
+
+--
+Zmienna ustawiajaca proxy:
+
+export http_proxy=http://username:password@host:port
+
+--
+Opis urzadzenia w udev:
+
+udevinfo -a -p $(udevinfo -q path -n /dev/hda1)
+
+--
+Wysylanie maila z zalacznikiem z konsoli:
+
+echo | mutt -s temat -a plik.zip -a plik2.zip -- user@domena.pl
+
+--
+Czyszczenie cache'a dyskowego (od 2.6.16, sprawdzenie wyniku vmstat).
+Najpierw zrob sync:
+
+echo 1 > /proc/sys/vm/drop_caches
+
+Czyszczenie inodow i dentries:
+
+echo 2 > /proc/sys/vm/drop_caches
+
+Czyszczenie cache, inodow i dentries:
+
+echo 3 > /proc/sys/vm/drop_caches
+
+--
+Wymuszenie zmiany hasla przy pierwszym logowaniu:
+
+passwd -e nazwa_usera
+
+--
+Podczas instalacji pakietu dostaje:
+"WARNING: The following packages cannot be authenticated!"
+
+apt-get install debian-archive-keyring
+apt-get update
+
+--
+Sprawdzenie, czy program jest skompilowany z TCP wrappers:
+
+ldd /usr/sbin/sshd | grep libwrap
+
+--
+Przeniesienie ssh w tlo, po zalogowaniu na zdalnym hoscie:
+
+~^Z
+
+reszta opcji:
+
+~?
+
+--
+Zrzut konsoli do pliku:
+
+setterm -dump 12
+cat screen.dump
+
+--
+Budowanie paczki javy:
+
+apt-get install fakeroot java-package
+fakeroot make-jpkg nazwa_binarki.bin
+dpkg -i sun-*
+
+--
+Zmiana klawiatury na np niemiecka:
+
+setxkbmap -layout de
+
+sprawdzenie ustawien
+
+setxkbmap -print
+
+--
+Quota:
+
+touch /quota.user /quota.group
+chmod 600 /quota.*
+mount -o remount /
+quotacheck -avugm
+quotaon -avug
+
+--
+Blokowanie mozliwosci logowania:
+
+touch /etc/nologin
+
+--
+Kody wcisnietych klawiszy:
+
+xev albo xbindkeys -k
+
+--
+Bezpieczne kasowanie plikow:
+
+shred -n 10 -v -z -u personalinfo.tar.gz
+
+calego dysku:
+
+shred -n 5 -v -z /dev/sda
+
+--
+Wylaczenie monitora:
+
+xset dpms force off
+
+--
+Przyklady lsof:
+wszystkie otwarte pliki w katalogu /tmp:
+
+lsof +D /tmp
+
+polaczenia na porcie 80:
+
+lsof -i:80
+
+polaczenia UDP:
+
+lsof -i UDP
+
+sockety:
+
+lsof -U
+
+polaczenia sieciowe:
+
+lsof -i -P -n
+
+pliki otwarte ale skasowane:
+
+lsof +L1
+
+symulacja tcptrack:
+
+lsof -r 1 -P -n -p <PID> -a -i TCP
+
+podglad co sekunde uslug korzystajacych z portu 30001
+
+lsof -r 1 -P -n -i :30001
+
+--
+przyklady tail i head:
+
+orange:~$ cat a
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+ostatnie 3 linie:
+
+orange:~$ tail -n -3 a
+7
+8
+9
+
+
+wszystko procz pierwszych 3 linii:
+
+orange:~$ tail -n +3 a
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+pierwsze 3 linie:
+
+orange:~$ head -n 3 a
+0
+1
+2
+
+
+wszystko procz ostatnich 3 linii:
+
+orange:~$ head -n -3 a
+0
+1
+2
+3
+4
+5
+6
+
+
+--
+Instalacja boot recordu, na obu dyskach
+jesli mamy raida, np md0 - /dev/sda1 i /dev/sdb1:
+
+grub> root (hd0,0) # pierwszy dysk
+grub> setup (hd0)  # pierwszy dysk
+grub> root (hd1,0) # drugi dysk
+grub> setup (hd1)  # drugi dysk
+grub> quit
+
+--
+Lista zawartosci archiwum locali:
+
+localedef --list-archive
+
+--
+Przyklady iproute:
+
+ustawienie domyslnego routingu:
+
+ip route add default via 192.168.7.223
+
+pokazanie przez jakie gw bedziemy sie laczyc z danym hostem:
+
+ip route get 195.202.117.222
+
+zmiana nazwy interfejsu:
+
+ip link set dev eth2 name wan0
+
+wyjscie do 212.2.102.235 przez 195.202.117.218 na eth1 (na eth0 mamy 195.202.117.217):
+
+ip route add 212.2.102.235/32 via 195.202.117.218 dev eth1
+
+przypisanie dodatkowego ip w /etc/network/interfaces w debianie:
+up ip a a 192.168.0.13/24 label eth0:mysql dev eth0
+
+wyczyszczenie arp dla danego ip:
+ip n f 1.2.3.4
+albo:
+ip n d 1.2.3.4 dev eth0
+
+wyczyszczenie wszystkich wpisow arp na danym interfejsie:
+ip n f def eth0
+
+gdy przypisujemy jakis ip do interfejsu:
+ip link set dev eth0 up
+ip addr add 192.168.7.45/24 dev eth0
+wtedy interfejs zostanie podniesiony, przypisany ip i dodany routing
+
+zmiana domyslnego gw z 223 na 224:
+ip r chg default via 192.168.7.224 dev eth0
+teraz trzeba wyczyscic cache:
+ip r f c
+
+pokazanie wpisow arp:
+ip n
+
+pokazanie inf. o interfejsie:
+ip a s eth0
+
+ustawienie mac addresu:
+ip l s dev eth0 address 00:1d:92:0d:4d:23
+
+wyswietlenie ilosci pakietow/bledow:
+ip -s link
+
+--
+Zmiana kolejnosci przyciskow w myszy (np dla leworecznych):
+
+xmodmap -e "pointer = 3 2 1"
+
+--
+Okienko powiadomienia:
+
+gmessage "Hello" -nofocus -buttons "GTK_STOCK_OK:0"
+
+najlepiej uzyc z at, np: at 13:05
+echo 'DISPLAY=:1.0 gmessage "Hello" -nofocus -buttons "GTK_STOCK_OK:0"' | at 13:05
+
+--
+Wielkosc zainstalowanych pakietow:
+
+dpkg-query -W -f='${Installed-Size;10}\t${Package}\n' | sort -k1,1n
+
+--
+Raport/zliczanie wywolan systemowych danej komendy:
+
+strace -c ls	>/dev/null
+
+--
+Przykłady netcat:
+
+Przesyłanie plików:
+hostA:
+
+nc -lp 5555 -vv >data
+
+hostB:
+
+cat plik | nc -w 1 <hostA> 5555
+
+
+-
+Chat (pisac mozna na obu hostach):
+hostA:
+
+nc -lp 5555 -vv
+
+hostB:
+
+nc <hostA> 5555
+
+
+-
+Telnet server:
+hostA:
+
+nc -lp 5555 -vv -e /bin/bash
+
+hostB:
+
+nc <hostA> 5555
+ls
+
+
+-
+Web server:
+
+while true; do nc -lp 80 -q 1 < error.html; done
+
+
+--
+Logowanie bez motd:
+
+touch ~/.hushlogin
+
+Jest to zdefiniowane w /etc/login.defs
+
+--
+Nieinteraktywny top:
+
+top -n1 -b
+
+--
+Kopiowanie klucza ssh na zdalna maszyne:
+
+ssh-copy-id -i .ssh/id_dsa.pub <host>
+
+--
+Więcej informacji o procesach:
+
+ps auxfeww
+
+--
+Wyswietlenie listy wszystkich polecen wbudowanych:
+
+enable -a
+
+--
+Diff na zawartosci katalogow:
+
+diff -u <(l kataloga) <(l katalogb)
+
+--
+Porownywanie liczb calkowitych:
+	(($foo != 1)) && { echo bar; }
+
+Porownywanie ciagu znakow:
+	[[ $foo == bar ]] && { echo bar; }
+
+--
+Przyklady obliczen:
+
+echo $(((2+3)*3))
+echo '(2+3)*3'|bc
+
+--
+Pokazywanie i usuwanie znakow niedrukowalnych z konca linii:
+
+radar@www.domena.pl:~$ cat -et plik
+jeden $
+dwa^I$
+trzy$
+
+radar@www.domena.pl:~$ sed -i 's/[ \t]*$//' plik
+
+radar@www.domena.pl:~$ cat -et plik
+jeden$
+dwa$
+trzy$
+
+--
+Usuwanie plikow o dziwnych nazwach:
+
+rm ./-delete_me
+rm -- --delete_me
+
+--
+Losowa liczba 0-50:
+
+echo $(expr $RANDOM % 51)
+
+--
+Dlugosc listy argumentow:
+
+getconf ARG_MAX
+
+wielkosc strony pamieci:
+
+getconf PAGE_SIZE
+
+--
+Losowe ciagi znakow:
+
+tr -dc '[:print:]' </dev/urandom
+
+--
+Kalendarz za wybrany msc i rok:
+
+cal 9 1978
+
+--
+Data jaka bedzie za tydzien:
+
+date -d "+7 days" +%m-%d-%y
+
+--
+Ustawienie jakiejs daty na sztywno:
+
+date --set '2008-07-10 15:59:55'
+
+--
+Bierzaca data w Los Angeles:
+
+TZ=':America/Los_Angeles' date
+
+--
+Uzyteczne podczas padu dyskow (gdy zostal tylo bash):
+zawartosc katalogu:
+
+*=<tab><tab>
+* echo .*
+
+zawartosc pliku:
+
+* echo $(<plik.txt)
+* while read i; do echo $i; done <plik.txt
+
+--
+Kopiowanie:
+
+cp plik.txt{,.bak}
+
+--
+Rownolegly for (& done):
+
+for i in {1..100000};do echo $i & done
+
+--
+Suma liczb z drugiej kolumny, jesli w pierwszej wystepuje dokladnie slowo "radar":
+
+awk '$1=="radar" {sum+=$2} END {print sum}'
+
+Wypisuje wszystkie kolumny, jesli w drugiej wystepuja cyfry 0-9, na samej gorze wypisuje "POCZATKOWY NAPIS":
+
+awk 'BEGIN {print "POCZATKOWY NAPIS"} $2~/[0-9]/ {print $0}'
+
+Wypisz wszystkie linie, ktorych kolumna 1 ma slowo "radar" i kolumna 3 > 0.5:
+
+awk '$1=="radar" && $3>0.5 {print $0}'
+albo krocej:
+awk '$1=="radar" && $3>0.5'
+
+Wypisz kolumne 2, jesli pierwsza jest oznaczona od "piec" do "hihi":
+
+awk '$1~/piec/,/hihi/ {print $2}'
+
+Sumuje pierwsza kolumne - duze liczby:
+
+awk '{sum+=$1} END {OFMT="%0.f"; print sum}'
+
+Wypisanie wierszy z pliku od 5 do 7:
+
+awk 'NR >= 5 && NR <= 7'
+
+Wypisanie 5 wiersza z pliku:
+
+awk 'NR == 5'
+
+Numeracja wierszy:
+
+awk '{print NR, $1}'
+
+Wypisuje linie od 'dwa' do 'siedem':
+
+awk '/^dwa$/,/^siedem$/'
+
+Wypisuje linie od '13:37:15' do końca:
+
+awk '/13:37:15/,EOF'
+
+Wyciagniecie IP z netstat i zliczenie:
+
+/bin/netstat -punta|awk '/87\.206\./ {split($5,i,":");print i[1]}'|sort -u|wc -l
+
+prints lines that match /foo/ and /bar/:
+
+awk '/foo/ && /bar/'
+
+prints lines that match /foo/ but not /bar/:
+
+awk '/foo/ && !/bar/'
+
+prints lines that match /foo/ or /bar/ (like grep -e 'foo' -e 'bar')
+
+awk '/foo/ || /bar/'
+
+ostatnie pole kazdej linii:
+
+awk '{ print $NF }'
+
+usuwa puste linie:
+
+awk NF
+awk '/./'
+
+--
+Usuwa linie 2-4:
+
+sed '2,4d'
+
+Usuwa puste linie:
+
+sed '/^$/d'
+
+Drukuje linie 2-4:
+
+sed -n '2,4p'
+
+Drukuje linie 45-50 (szybkie na duzych plikach - jest zauwazalna roznica):
+
+sed -n '51q;45,50p'
+
+W ktorej linii znajduja sie wyrazy Database:
+
+sed -n '/Databases/='
+
+Wstawia za linia 8 "hahaha":
+
+sed '8 a hahaha'
+
+Wstawia przed linia 8 "hahaha":
+
+sed '8 i hahaha'
+
+wypisuje linie od 'dwa' do 'siedem':
+
+sed -n '/^dwa$/,/^siedem$/p'
+
+Substitute "foo" with "bar" ONLY for lines which contain "baz":
+
+sed '/baz/s/foo/bar/g'
+
+Substitute "foo" with "bar" EXCEPT for lines which contain "baz":
+
+sed '/baz/!s/foo/bar/g'
+
+Wyszukuje 632 linie z pliku (szybkie na duzych plikach):
+
+sed '632q;d'
+
+Usuwa ostatnia linie z pliku:
+
+sed '$d'
+
+Dodatkowe odstepy miedzy wierszami:
+
+sed G
+
+Odstep po kazdej linii zawierajacej regex:
+
+sed '/regex/{x;p;x;}'
+
+Odstep przed kazda linia zawierajaca regex:
+
+sed '/regex/G'
+
+Usuniecie 10 poczatkowych znakow z pliku:
+
+sed 's/^.\{10\}//' plik
+
+Print the line immediately before regexp, but not the line containing the regexp:
+
+sed -n '/regexp/{g;1!p;};h'
+
+Print the line immediately after regexp, but not the line containing the regexp.
+
+sed -n '/regexp/{n;p;}'
+
+Wyswietla 120 i 145 linie z pliku:
+
+sed -n -e 120p -e 145p -e 1050p /var/log/syslog
+
+Zamienia cala linie zawierajaca slowo bla na 'jeden dwa trzy':
+
+echo bla abc 123 | sed '/abc/c jeden dwa trzy'
+
+--
+Przyklady perl:
+
+Sprawdzanie wersji zainstalowanego modulu w perlu:
+
+perl -e "eval qq{use \$ARGV[0];\\\$v=\\\$\${ARGV[0]}::VERSION;};print\$@?qq{No module found\n}:\$v?qq{Version \$v\n}:qq{Found.\n};" DBI
+
+
+Usuwanie plikow przez perla:
+
+perl -e 'unlink("backup.tar");'
+
+
+Gdzie perl szuka modulow:
+
+perl -e "print join(\"\n\", @INC);"
+
+
+SMTP AUTH (podajemy po helo <nazwa>, jako AUTH PLAIN <zakodowane haslo>):
+
+perl -MMIME::Base64 -e 'print encode_base64("\000login\000haslo")'
+
+
+Zmiana w logach daty epoch na ludzka:
+perl -MPOSIX -p -e 's/\[(\d+)\]/localtime($1)/e' /var/log/nagios/nagios.log
+
+--
+Przyklad eval:
+
+$ mypipe="|"
+$ eval ls $mypipe wc
+6       6     129
+
+--
+Sprawdzenie runlevela:
+
+who -r
+runlevel
+
+--
+Statystyki przeslanych pakietow:
+
+netstat -s
+
+--
+Grep ze status-barem"
+
+pv access.log | grep 83.29.54.239
+
+--
+kopiowanie bazy host-host z progress-barem:
+
+pg_dump baza | pv -W -s 80G | psql -h host -d baza -U login -W  >/tmp/1.log 2>/tmp/2.log
+
+-s to ilosc danych do przeslania
+-W czeka na wprowadzenie hasla zanim zacznie wyswietlac progress-bar
+
+--
+Uwuwanie pozostawionych semaforow po Apache:
+
+ipcs -s|awk '/www-data/ {print $2}'|xargs ipcrm sem
+
+--
+wylaczenie i wlaczenie wifi:
+
+find /sys -name rf_kill
+
+echo 1 > /sys/devices/pci0000:00/0000:00:1c.1/0000:04:00.0/rf_kill
+echo 0 > /sys/devices/pci0000:00/0000:00:1c.1/0000:04:00.0/rf_kill
+
+--
+reboot po 10 sekundach kernel panic:
+
+echo "kernel.panic = 10" >>/etc/sysctl.conf
+
+--
+duplikaty plikow:
+
+fdupes
+
+--
+screen:
+
+chwilowe zabezpieczenie haslem (uzytkowika w systemie):
+  ctrl+a x
+
+
+podlaczenie do biezacej sesji:
+  screen -x
+
+
+ustawienie hasla zapobiegajacego podlaczeniu sie do biezacej sesji:
+  ctrl+a :
+  password blabla
+
+reset tego hasla:
+  ctrl+a :
+  passowrd none
+
+ustawienie na sztywno tego hasla w .screenrc:
+  password blabla
+
+zapis komend i wynikow do logu screenlog.0:
+  screen -L
+
+--
+testy bonnie++
+tworzy 100 plikow, kazdy o rozmiarze 1GB w /tmp, ilosc RAMu to 8GB:
+
+bonnie++ -r 8115 -s 100000 -d /tmp -u root
+
+--
+przyklady openssl:
+
+
+kodowanie tekstu do base64:
+
+orange:~$ echo blah | openssl base64
+YmxhaAo=
+
+
+dekodowanie z base64 do tekstu:
+
+orange:~$ echo YmxhaAo= | openssl base64 -d
+blah
+
+
+md5 pliku:
+
+openssl md5 plik
+
+
+szyfrowanie pliku:
+
+openssl aes-256-cbc -a -salt -in secrets.txt -out secrets.txt.enc
+
+deszyfrowanie pliku:
+
+openssl aes-256-cbc -d -a -in secrets.txt.enc -out secrets.txt.new
+
+
+testowanie polaczenia ssl:
+
+openssl s_client -connect domena.pl:465
+
+i na port 25 z STARTTLS
+
+openssl s_client -starttls smtp -connect domena.pl:25
+
+--
+wsadowa zmiana hasel uzytkownikow:
+
+1. sposob z haslami w postaci czystego tekstu:
+
+orange:~$ cat pass.txt
+basia:trudnehaslo12
+kasia:supertrudnehaslo123
+
+chpasswd <pass.txt
+
+
+2. sposob z haslami w postaci skrotow:
+
+- generujemy skrot hasla:
+orange:~$ openssl passwd -1
+Password:
+Verifying - Password:
+$1$rlmcLg2I$SCsq2txvT2T6ngBwfQfoh/
+
+- tworzymi plik w postaci user:haslo
+echo 'basia:$1$WEQUxisI$qkw9dTUUkoOXTrBAeCsKz/' >pass.txt
+
+- zmiana hasla:
+chpasswd -e <pass.txt
+
+--
+Certyfikat SSL - kupowanie (np. w home.pl):
+
+Generowanie klucza:
+
+openssl genrsa -out domena.key 1024
+openssl req -new -key domena.key -out domena.csr
+
+Mozna sprawdzic wpisane pola:
+
+openssl req -noout -text -in domena.csr
+
+Do podpisu wysylamy domena.csr
+Do konfiguracji serwera bedzie potrzebny certyfikat ktory otrzymamy i klucz domena.key
+
+Powiadomienie o certyfikacie przyjdzie na adres: admin@<zamowiona_domena.pl>
+Potwierdzenie o certyfikat przyjdzie na adres: admin@domena.pl albo zamowiona_domena.pl
+
+w konfigu apache:
+SSLEngine on
+SSLCertificateFile /etc/apache2/cert/zamowiona_domena.pl.pem
+
+w pliku pem wstawiamy klucz i otrzymany certyfikat:
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEAneo3TPptVaSvctAzqL62P2r/sAPUK1vVd/lLOycikKbVfbXB
+...
+-----END RSA PRIVATE KEY-----
+-----BEGIN CERTIFICATE-----
+MIIDsDCCAxmgAwIBAgIDC1OHMA0GCSqGSIb3DQEBBQUAME4xCzAJBgNVBAYTAlVT
+...
+-----END CERTIFICATE-----
+
+--
+Informacje o systemie:
+
+lshw
+hwinfo
+dmidecode
+
+i troche o biosie:
+
+dd if=/dev/mem bs=1k skip=768 count=256|strings -n 8
+
+--
+Find, przyklady:
+
+find  /home/mariusz/export -type f -iregex '.+/img/.+\.\(jpg\|png\|gif\|bmp\)' -mtime +30 -print0 | xargs -0 echo nice -n18 rm
+wyszukuje i usuwa:
+/home/mariusz/export/partners/acn/img/mieszkanie41230_22547.jpg
+
+find /tmp -maxdepth 1 -regextype posix-extended -iregex '/tmp/[0-9a-z]{32}_[0-9a-f]{1,}' -type f -uid 1003 -mmin +60 -delete
+wyszukuje i usuwa w /tmp bez podkatalogow pliki typu f6bddc05efc121a0bc4ee50bc695071e_4823 ktorym wlascicielem jest
+user o uid=1003 i ktore sa starsze niz 60 minut
+
+find /home/*ftp -regextype posix-extended -type f -iregex ".+/oferty\\{.+\\}-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}\.(mls|zip)" -mtime +30 -print0 | xargs -0 nice -n18 rm
+wyszukuje i usuwa:
+/home/fxftp/oferty{8D0A3ECB-B83A-47D7-A601-4940D29487B3}-2008-03-27-16-23-49.mls
+/home/hrftp/oferty{A9952440-F401-43C2-8BA8-D263B962DC58}-2008-04-08-15-43-02.zip
+
+find /home/*ftp ! \( -name dolftp -prune  -o -name polftp -prune \) -type f -mtime +30
+wyszukuje we wszystkich katalogach procz dolftp i polftp pliki starsze niz 30 dni
+
+find -mmin -15 \( ! -regex ".*/\..*" \)
+wyszukuje pliki zmodyfikowane w ciagu ostatnich 15 minut, procz plikow ukrytych
+
+find -daystart -mtime 0 -type f
+pliki zmodyfikowane WCZORAJ
+
+find -daystart -mtime 1 -type f
+pliki zmodyfikowane 2 DNI TEMU
+
+touch -t 200612310000 template
+find katalog -name oferty*.zip \! -newer template
+usuwa pliki starsze niz 20061231
+
+find -maxdepth 1 -newermt 2013-11-11 ! -newermt 2013-11-12 -ls
+pliki zmodyfikowane 2013-11-11
+(od wersji find 4.3.3)
+
+--
+Wylaczenie speakera w komputerze:
+
+rmmod pcspkr
+echo blacklist pcspkr > /etc/modprobe.d/pcspkr-blacklist
+
+--
+Kopia partycji na drugi dysk:
+
+sfdisk -d /dev/sda | sfdisk /dev/sdb
+
+--
+wget na stdout:
+
+wget -qO- http://domena.pl/server-status?auto
+
+--
+Przyspieszenie zestawiania ssh, wykorzystuje jedno polaczenie:
+
+cat >> ~/.ssh/config << EOF
+Host *
+ControlMaster auto
+ControlPath ~/.ssh/%r@%h:%p
+EOF
+
+UWAGA!
+1.
+Jesli chcemy zestawic tunel, np ssh -D 8888 domena.pl, to bedzie on dzialal tylko na
+pierwszym polaczeniu do domena.pl. Kolejne nie potrafia tunelowac.
+
+Jesli chcemy sie do jakiegos hosta podlaczyc normalnie, to pierwsze polaczenie musi byc:
+ssh -o ControlMaster=no
+wtedy nastepne polaczenie do tego samego hosta bedzie nawiazywane na nowo
+
+2.
+Jesli zakonczymy glowne polaczenie, to pozostale tez zostana zamkniete
+
+--
+Dzwiek tylko w sluchawkach po ich podlaczeniu:
+w /etc/modprobe.d/sound:
+
+alias snd-card-0 snd-hda-intel
+options snd-hda-intel model=lenovo
+
+potem w alsamixer, w kolumnie 'front' naciskamy 'm' by ja wygluszyc
+
+--
+Zwiekszenie entropii, gdy jest za mala w /proc/sys/kernel/random/entropy_avail:
+
+apt-get install rng-tools
+Edit /etc/default/rng-tools
+Set HRNGDEVICE=/dev/urandom
+/etc/init.d/rng-tools start
+
+teraz entropy bedzie sie utrzymywac na calkiem wysokim poziomie (~1800)
+
+mozemy to sprawdzic np robiac gpg --gen-key z wlaczonym i wylaczonym rng-tools
+
+--
+Multitail, przyklady:
+
+zwykle wywolanie
+ multitail access.log error.log
+
+wywolanie logow ze schematem kolorow (-cS) apache
+ multitail -cS apache  access.log error.log
+
+zlaczenie 2 plikow w jednym oknie (-I), kolory (-ci): access.log czerwony, error.log zielony
+ multitail -ci green access.log -ci red -I error.log
+
+ekran podzielony na 3 kolumny (-s 3), w kazdej ping
+ multitail -s 3 -l "ping wp.pl" -l "ping onet.pl" -l "ping domena.pl"
+
+ekran z 4 pingami
+ multitail -s 2 -l "ping onet.pl" -l "ping wp.pl" -l "ping domena.pl" -l "ping o2.pl"
+
+ekran podzielony na 2 kolumnu (-s 2), po lewej stronie wykonywanie "/bin/netstat -tn|grep ESTABLISHED"
+co 5 sekund (-R 5), a po prawej "ping onet.pl"
+ multitail -s 2 -R 5 -l "/bin/netstat -tn|grep ESTABLISHED" -l "ping onet.pl"
+
+monitorowanie plikow po nazwie, nie po deskryptorze
+ multitail -f access.log -f error.log
+
+--
+Downgrade pakietu:
+
+sposob 1, przed instalacja nower wersji:
+-robimy pakiet ze starej zainstalowanej w sytemie: dpkg-repack unison
+-powstanie dzieki temu plik unison_2.13.16-9+b1_i386.deb
+
+sposob 2, po instalacji nowej wersji:
+-do /etc/apt/sources.list dodajemy: deb http://snapshot.debian.net/archive pool unison
+-teraz apt-cache policy unison pokazuje rozne wersje
+-mozna ktoras z nich zainstalowac: apt-get install unison=2.13.16-9+b1
+
+--
+Rdiff-backup test:
+
+rdiff-backup --test-server host.do.backupu.pl::/tmp
+
+--
+Sprawdzanie obciazenia I/O poszczegolnych partycji:
+
+iostat -p -d -k 1
+
+--
+Zatrzymanie pakietu w danej wersji:
+
+w /etc/apt/preferences:
+
+Package: unison
+Pin: version 2.13.16-9+b1
+Pin-Priority: 1001
+
+teraz jesli w repozytoriach pojawi sie nowa wersja, to nie da sie jej zainstalowac
+
+--
+Przegenerowanie kluczy ssh:
+
+ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
+ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
+
+--
+Zliczenie ilosci polaczen:
+
+conntrack -L | wc -l
+
+albo szybciej:
+sysctl net.ipv4.netfilter.ip_conntrack_count
+
+--
+zwiekszenie ilosci conntrack:
+Nie zmieniamy ip_conntrack_max recznie. Zamiast tego trzeba zwiekszyc ip_conntrack_buckets:
+
+modprobe ip_conntrack hashsize=16384
+
+Wtedy ip_conntrack_max powinno automatycznie skoczyc do np 131072.
+Jesli nie mozemy wyladowac modulu ip_conntrack, to:
+
+echo 16384 >/sys/module/ip_conntrack/parameters/hashsize
+sysctl -w net.ipv4.netfilter.ip_conntrack_max=131072
+
+i sprawdzamy czy dane sa poprawne:
+
+sysctl -a | grep conntrack
+
+-
+
+Obliczmy zuzycie pamieci przez conntrack:
+
+ip_conntrack_max * ilosc_bajtow_dla_jednego_wpisu_w_conntrack + ip_conntrack_buckets * rozmiar_wskaznika
+
+gdzie:
+ilosc_bajtow_dla_jednego_wpisu_w_conntrack to:
+ awk '/ip_conntrack /{print $4}' /proc/slabinfo
+rozmiar_wskaznika to 8 bajtow na i386
+
+In practice, pointers will be size 2 on a 16-bit system (if you can
+find one), 4 on a 32-bit system, and 8 on a 64-bit system, but there's
+nothing to be gained in relying on a given.
+
+te informacje mozna tez zobaczyc w /var/log/kern.log:
+ip_conntrack version 2.4 (16384 buckets, 131072 max) - 224 bytes per conntrack
+
+-
+
+Obliczmy:
+ile moze wynosic ip_conntrack_max przy danej ilosci RAMu:
+
+ip_conntrack_max = RAMSIZE (in bytes) / 16384 / (x / 32)
+where x is the number of bits in a pointer (for example, 32 or 64 bits)
+
+ile moze wynosic ip_conntrack_buckets przy danej ilosci RAMu:
+
+ip_conntrack_buckets = ip_conntrack_max / 8 = RAMSIZE (in bytes) / 131072 / (x / 32)
+where x is the number of bits in a pointer (for example, 32 or 64 bits)
+
+No i:
+ip_conntrack_max = ip_conntrack_buckets * 8
+
+--
+Skrocenie czasu zycia niewykorzystywanych polaczen (w sekundach):
+
+sysctl -w net.ipv4.netfilter.ip_conntrack_tcp_timeout_established=1200
+
+--
+Przyklady iptables:
+
+Przekierowanie portow. Cos jak redir, ale w redirze brak rozpoznawania po adresie zrodlowym. Przekierowujemy ruch
+przychodzacy na 195.202.117.222 na port 5555 z sieci 217.153.61.132/30, na host 195.202.117.250, na port 5555.
+Wymagane jest wlaczenie forwardowania pakietow.
+
+iptables -t nat -A PREROUTING -p tcp -s 217.153.61.132/30 -d 195.202.117.222 --dport 5555  -j DNAT --to-destination 195.202.117.250:5555
+iptables -t nat -A POSTROUTING -p tcp -s 217.153.61.132/30 -d 195.202.117.250 --dport 5555 -j SNAT --to-source 195.202.117.222
+
+--
+Informacje o karcie sieciowej (firmware itp):
+
+ethtool -i eth0
+
+--
+Zabijanie procesow (w odpowiedniej kolejnosci):
+
+kill PID
+kill -INT PID
+kill -HUP PID
+
+jesli powyzsze nie zadzialaja, to dopiero:
+
+kill -KILL PID
+
+--
+Wylaczenie jednego z procesorow:
+
+echo 0 >/sys/devices/system/cpu/cpu1/online
+
+--
+W jakiej kolejnosci zostaly zainstalowane rpmy:
+
+rpm -qa --last | tac
+
+albo
+
+rpm -qa --queryformat "%-30{NAME} %-15{INSTALLTIME} %{INSTALLTIME:date}\n"|sort -n -k2
+
+--
+Sprawdzenie napedow obslugiwanych przez gruba na ktorych mozna zainstalowac boot sector:
+
+grub> null (<TAB>
+
+--
+Ustawienie interfejsu eth0 jako primary w bondingu:
+
+echo eth0 >/sys/class/net/bond0/bonding/primary
+
+sprawdzamy:
+
+cat /proc/net/bonding/bond0
+
+--
+uzycie keychain:
+
+1. instalujemy keychain
+2. dodajemy do .bash_profile:
+
+    keychain -q ~/.ssh/id_dsa  (lub inny klucz)
+    source ~/.keychain/$HOSTNAME-sh
+
+3. po powtornym zalogowaniu powinny pojawic sie zmienne SSH_AGENT_PID i SSH_AUTH_SOCK
+
+--
+wielkosc strony pamieci:
+
+getconf PAGESIZE
+getconf PAGE_SIZE
+
+--
+dynamiczne wyswietlanie zajetosci pamieci przez dany proces:
+
+- pmem -mli 5000 <pid> - pokazuje zajetosc w MB i odswieza co 5 sek
+- pmem -dm <pid> - bardziej szczegolowo, ale niedynamicznie i bez historii
+
+--
+restart danego tunelu vpn (openswan):
+
+i=nazwa; ipsec auto --down "$i"; ipsec auto --delete "$i"; ipsec auto --add "$i"; ipsec auto --up "$i"
+
+gdzie i=<nazwa_z_/etc/ipsec.conf>
+
+--
+zmiana shella przes usera:
+
+chsh -s /bin/zsh
+echo $SHELL
+
+--
+zawartosc initrd:
+
+cp /boot/initrd.img-2.6.26-1-686 /tmp
+cd /tmp
+mkdir initrd
+cd initrd
+mv initrd.img-2.6.26-1-686 initrd.img-2.6.26-1-686.gz
+gunzip initrd.img-2.6.26-1-686.gz
+cat ../initrd.img-2.6.26-1-686 | cpio -id
+
+--
+wczytanie modyfikacji zmiany partycji bez rebootu:
+
+partprobe
+(w pakiecie parted)
+
+--
+zmiana rozdzielczosci:
+
+orange:~$ xrandr
+Screen 0: minimum 320 x 240, current 1280 x 800, maximum 1280 x 800
+default connected 1280x800+0+0 0mm x 0mm
+   1280x800       50.0*
+   1024x768       51.0
+   800x600        52.0
+   800x512        53.0
+
+* oznacza aktualna rozdzielczosc
+Jesli chcemy ustawic np 800x600, to:
+
+xrandr -s 2
+
+--
+zmiana hasla przez usera (wymuszenie wygasniecia hasla):
+
+chage -d0 user
+
+--
+sprawdzenie ktory interfejs to eth0:
+
+ethtool -p eth0 5
+
+na 5 sekund zaswieci sie LED na danej karcie sieciowej
+
+--
+szybkie wylistowanie uzytkownikow:
+
+ctrl+x ~
+
+uzytkownicy na "r":
+
+wpisujemy r, potem ctrl+x ~
+
+--
+bash tips:
+
+Undo modyfikowanej linii w bashu:
+
+ctrl+_
+
+kasowanie slowa za kursorem:
+alt+d
+
+kasowanie slowa przed kursorem:
+ctrl+w
+
+zamiana liter za kursorem na duze:
+alt+U
+
+zamiana liter za kursorem na male:
+alt+L
+
+zamiana dwoch slow miejscami:
+alt+T
+
+wstawienie ostatniego slowa wczesniejszego polecenia:
+alt+.
+
+numer linii w skrypcie:
+echo $LINENO
+
+Run the previous shell command but replace string “foo” with “bar”:
+^foo^bar^
+
+przyklady powtarzania argumentow:
+
+lemon:~$ echo a b c d
+a b c d
+
+pierwszy ciag niebedacy poleceniem:
+echo !^
+a
+
+wszystkie ciagi niebedace poleceniem:
+echo !*
+a b c d
+
+ostatni ciag niebedacy poleceniem:
+echo !$
+d
+
+drugi ciag niebedacy poleceniem:
+echo !:2
+b
+
+zakres od drugiego do trzeciego ciagu niebedacego poleceniem:
+echo !:2-3
+b c
+
+zakres od drugiego do ostatniego ciagu niebedacego poleceniem:
+echo !:2-$
+b c d
+
+zakres od drugiego do ostatniego ciagu niebedacego poleceniem,
+oprocz ostatniego ciagu:
+echo !:2-
+b c
+
+cale ostatnie polecenie, wraz z argumentami, bez ostatniego
+argumentu:
+!!:-
+a b c
+
+w podobny sposob powtarzamy argumenty nie dla poprzedniego
+polecenia, ale tez aktualnego:
+lemon:~$ echo a b c d !#:2-$
+echo a b c d b c d
+a b c d b c d
+
+
+Zwraca test, jesli zmienna $1 nie jest zdefiniowana:
+
+LOG=${1:-haha}
+echo $LOG
+
+Usuwa najkrotsza poczatkowa pasujaca czesc do wzorca:
+
+echo ${PATH#*:}
+/usr/bin:/bin:/usr/bin/X11:/usr/games
+
+Usuwa najdluzsza poczatkowa pasujaca czesc do wzorca:
+
+echo ${PATH##*:}
+/usr/games
+
+Usuwa najkrotsza koncowa pasujaca czesc do wzorca:
+
+echo ${PATH%:*}
+/usr/local/bin:/usr/bin:/bin:/usr/bin/X11
+
+Usuwa najdluzsza koncowa pasujaca czesc do wzorca:
+
+echo ${PATH%%:*}
+/usr/local/bin
+
+Zastepuje ciagiem pierwszy znaleziony wzorzec:
+
+echo ${PATH/:/-}
+/usr/local/bin-/usr/bin:/bin:/usr/bin/X11:/usr/games
+
+Zastepuje ciagiem wszystkie znalezione wzorce:
+
+echo ${PATH//:/-}
+/usr/local/bin-/usr/bin-/bin-/usr/bin/X11-/usr/games
+
+wczytywanie pliku, 4 sposoby:
+
+while read line;do echo $line;done <plik
+while read;do echo $REPLY;done <plik
+cat plik | while read line;do echo $line;done
+cat plik | while read;do echo $REPLY;done
+
+Delete all files in a folder that don't match a certain file extension:
+rm !(*.foo|*.bar|*.baz)
+
+comment current line:
+<ESC> #
+-
+
+history:
+
+builder64.domena:~$ echo a b c d
+a b c d
+builder64.domena:~$ !!:0- z
+echo a b c z
+a b c z
+-
+
+Convert text to uppercase
+upper() { echo ${@^^}; }
+
+Convert text to lowercase
+lower() { echo ${@,,}; }
+-
+
+rozne sposoby na listowanie istniejacych zmiennych,
+np wszystkich zaczynajacych sie od "BASH":
+
+compgen -v | grep BASH
+echo ${!BASH*}
+( set -o posix ; set ) | grep BASH
+
+to ostatnie pokazuje od razu wartosci
+-
+utworzenie katalogu i przejście do niego:
+
+mkdir abc && cd $_
+
+--
+vim tips:
+
+przejscie do drugiej linii od gory ekranu
+2H
+
+przejscie do czwartej linii od dolu ekranu
+4L
+
+przejscie na srodek ekranu
+M
+
+przeniesienie aktualnej linii z kursorem na gore ekranu
+zt
+
+przeniesienie aktualnej linii z kursorem na dol ekranu
+zb
+
+przeniesienie aktualnej linii z kursorem na srodek ekranu
+zz
+
+zlaczenie linii bez spacji
+gJ
+
+przejscie do polowy pliku (50%)
+50%
+
+ustawienie zakladki:
+m<znak>
+
+przejscie do zakladki
+`<znak>
+
+wylistowanie zakladek
+:marks
+
+goes to the insert mode where you left in last time
+gi
+
+przejscie do nastepnej linii, jesli jest ona zawinieta w edytorze
+(czyli nie zlamana)
+gj (gk - do poprzedniej)
+
+zmiana akutalnego znaku z nastepnym
+xp
+
+dopelnianie slowa:
+ctrl+x ctrl+n
+
+dopelniania linii:
+ctrl+x ctrl+l
+
+dopelnianie nazwy pliku:
+ctrl+x ctrl+f
+
+edycja w vim aktualnej linii z terminala:
+(po zapisaniu zostanie ona wykonana)
+ctrl+x ctrl+e
+
+otworz zakladke
+zo
+
+zamknij zakladke
+zc
+
+otworz wszystkie zakladki
+zR
+
+zamknij wszystkie zakladki
+zM
+
+kasuj dana zakladke
+zd
+
+kasuj wszystkie zakladki
+zE
+
+zamienia taby na spacje
+:set expandtab
+:retab!
+
+u - undo
+ctrl+r - redo
+U - current line with original state
+
+lowercase line
+guu
+albo gu$
+
+uppercase line
+gUU
+albo gU$
+
+lowercase word
+gue
+
+uppercase word
+gUe
+
+zmiana uppercase na lowercase wybranego wyrazu w całym pliku:
+:%s/WYRAZ/\L&/g
+
+rozne znaczki:
+:digraphs
+jesli chemy miec 'u' z dwoma kropkami, to w insert mode:
+ctrl+k u:
+
+zapisanie sesji pracy:
+:mksession plik.vim
+i odtworzenie jej (np nastepnego dnia)
+:so plik.vim
+
+wypisanie na dole ekranu linii od 3 do 8:
+:3,8 print
+
+wyswietlenie wartosci opcji:
+:set option?
+
+ustawienie domyslnej wartosci opcji
+:set option&
+
+opisy opcji
+:options
+
+wklejanie:
+ctrl+r, potem "
+
+wklejanie poprzednio wklejonego tekstu:
+ctrl+a
+
+Toggle between Insert and Replace mode:
+<ins>
+
+remove ^M characters at end of lines:
+:%s/^M//g
+(The ^v is a CONTROL-V character and ^m is a CONTROL-M)
+
+formatowanie konca linii na unix:
+:set ff=unix
+
+zapis pliku do ktorego nie mamy uprawnien:
+:w !sudo tee %
+
+jednoczesne operacje we wszystkich tabach:
+:tabdo
+np zmieniamy 222 na 2222 we wszystkich tabach, zapisujemy i zamykamy:
+:tabdo %s/222/2222/|wq
+| laczy komendy
+
+windows:
+Swap top/bottom or left/right split
+Ctrl+w r
+
+cycle between the open windows
+ctrl-w ctrl-w
+
+focus the window to the down/up
+ctrl-w j/k
+
+Normalize all split sizes, which is very handy when resizing terminal
+ctrl + w =
+
+Close every window in the current tabview but the current one
+ctrl + w o
+
+open new file in new window, horizontal/vertical
+:sp filename OR ctrl+w s
+:vsp filename OR ctrl+w v
+
+--
+testy http:
+
+curl -IL --interface 192.168.1.10 wp.pl
+
+siege -g wp.pl
+
+wget -S wp.pl
+
+GET -dusUS wp.pl
+GET -dusUSe wp.pl
+
+HEAD -uUS wp.pl
+
+--
+konwersja daty epoch => ludzka
+
+date -d @1225910682
+
+i odwrotnie:
+
+date -d '2011-12-05 12:00' +%s
+
+--
+sprawdza czy shell jest interaktywny:
+
+echo $-|grep -o i
+
+--
+sortowanie:
+
+orange:~$ cat ip
+10.0.0.2
+192.168.0.4
+10.0.0.5
+192.168.0.2
+192.168.0.12
+10.0.0.20
+
+sortujemy rozdzielajac pola kropka (.), potem rozpoczynajac od pola pierwszego (1) i konczac (,) na polu pierwszym (1)
+z sortowaniem numerycznym (n)
+
+orange:~$ cat ip | sort -t "." -k 1,1n -k 2,2n -k 3,3n -k 4,4n
+10.0.0.2
+10.0.0.5
+10.0.0.20
+192.168.0.2
+192.168.0.4
+192.168.0.12
+
+--
+tablica w bash:
+
+zadeklarowanie:
+T=($(ls -1 /))
+
+listowanie jednego elementu:
+echo ${F[0]}
+
+ilosc elementow:
+echo ${#F[@]}
+
+listowanie wszystkich elementow:
+for i in $(seq 0 ${#T[@]});do echo ${T[$i]};done
+
+
+
+
+declare -A array
+array[foo]=bar
+array[bar]=foo
+
+for i in "${!array[@]}"
+do
+  echo "key  : $i"
+  echo "value: ${array[$i]}"
+done
+
+--
+kolejnosc komend w bashu:
+
+alias
+function
+builtin
+path
+
+--
+zmienna ktorej user nie moze modyfikowac (tylko do odczytu):
+
+declare -r TMOUT=3600
+albo
+readonly TMOUT=3600
+
+--
+numerowanie wierszy:
+
+cat -n <plik> = nl -ba <plik>
+cat -b <plik> = nl <plik>
+
+--
+wysylanie POSTa:
+
+echo | POST http://domena.pl:9912/
+
+uwaga, jesli puszczamy to przez proxy, to http_proxy powinien miec format:
+http_proxy=http://proxy:3128/
+
+POST jest w pakiecie libwww-perl
+
+--
+CPAN
+
+wywolanie:
+cpan lub perl -MCPAN -e shell
+
+instalacjai modulu:
+cpan -i Net::Pcal lub perl -MCPAN -e 'install Net::Pcap'
+
+na poczatku cpan spyta o konfiguracje, gdy juz ja uzupelnimy to zapisujemy:
+cpan> o conf commit
+
+do prawidlowego dzialania cpan dobrze jest zainstalowac:
+libwww-perl i Term::Readline
+pierwszy pobiera pakiety przez http, drugi powoduje ze mozna korzystac
+z historii. Pierwszy jest wazny, gdyz bez niego nie zadziala cpan przez proxy
+
+wyszukiwanie:
+cpan> i /NetPacket::/
+
+jesli chcemy utworzyc pakiet deb z modulu cpan:
+dh-make-perl
+
+--
+rozpakowanie rpm:
+
+rpm2cpio nagios-3.0.6-1.rf.i386.rpm | cpio -vid
+
+--
+http server w pythonie:
+
+python -m SimpleHTTPServer
+albo
+python -m BaseHTTPServer
+
+--
+dzialajacy ale niewidzialny kursor:
+
+w section device:
+Option     "SWcursor"     "True"
+
+--
+wznawianie tranfseru pliku kopiowanego przez ssh:
+(scp nie posiada takiej opcji)
+
+rsync -P -e ssh serwer.pl:plik.txt .
+
+--
+wymuszenie fsck po reboocie:
+touch /forcefsck
+
+wylaczenie fsck po reboocie:
+touch /fastboot
+
+oba pliki zostana usuniete po reboocie
+
+--
+zaladowanie modulu kernela przy starcie Centosa:
+
+echo modprobe foo >> /etc/rc.modules
+chmod +x /etc/rc.modules
+
+--
+przyklady ngrep:
+
+-zadania i odpowiedzi HTTP
+ngrep -qtd wlan0 '^(GET|HTTP)' port 80
+
+-zadania POST, buforowane, w czytelnej postaci:
+ngrep -W byline -tlqd lo '^POST' port 8080
+
+-zadania POST, buforowane, pierwszych 50 znakow
+ngrep -S 50 -tlqd lo '^POST' port 8080
+
+-login i haslo w POP3
+ngrep -qtd wlan0 -wi 'user|pass' port 110
+
+- protokol HTTP, dodatkowo zapisany w formacie pcap
+ngrep -qtd wlan0 port 80 -O ip.log
+
+--
+wylaczenie danej uslugi na stale podczas startu debiana:
+
+update-rc.d -f xinetd remove
+update-rc.d xinetd stop 20 0 1 2 3 4 5 6 .
+
+Uwaga! Jesli zrobimy samo remove, to po instalacji nowej wersji pakietu
+zostana utworzone nowe symlinki tak jak podczas
+update-rc.d xinetd defaults
+
+--
+digitemp (pomiar temperatury przez serial):
+
+apt-get install digitemp
+
+tworzymy konfig digitemp na podstawie urzadzenia:
+digitemp_DS9097 -i -s /dev/ttyS0 -q -c /etc/digitemp.conf
+
+odczytujemy temp. w st.C:
+digitemp_DS9097 -c /etc/digitemp.conf -q -a -o '%C'
+
+--
+uaktualnienie informacji o root serverach w bind:
+
+dig @a.root-servers.net . ns >/etc/bind/db.root
+
+--
+mc tips:
+
+ctrl+u - zamiana paneli miejscami
+alt+o - podglad zawartosci katalogu w panelu obok
+ctrl+n - w dol
+ctrl+p - w gore
+alt+< - home
+alt+> - end
+ctrl+o - przeniesienie w tlo i z powrotem
+alt+i - wyswietlenie w drugim panelu zawartosci pierwszego
+alt+? - wyszukiwanie
+ctrl+t / insert - zaznaczenie
+ctrl+v - page down
+alt+v - page up
+alt+g/r/j - kursor na gore/srodek/koniec ekranu
+alt+y - previous dir in history
+alt+u - next dir in history
+alt+H - display dir history
+alt+enter - kopiuje zaznaczony plik do commanlinea
+ctrl+x p - kopiuje aktualna siezke do commandlinea
+alt+p - previous in history
+alt+n - next in history
+ctrl+x i - wyswietla w panelu obok info o danym pliku
+ctrl+x q - wyswietla w panelu obok zawartosc pliku
+
+--
+Aktualne kodowanie w systemie (procz pl_PL):
+
+locale charmap
+
+--
+ext3grep, odzyskiwanie plikow:
+
+1. odzysk pliku 'dwa'
+
+- odmontowujemy partycje (tu: /dev/vg/bla)
+- ext3grep /dev/vg/bla --dump-names
+- ext3grep /dev/vg/bla --restore-file dwa
+ (uwaga, jesli 'dwa' to byl katalog z zawartoscia, to odzyskany zostanie sam katalog)
+- plik odzyskany zostanie do bierzacego katalogu, do RESTORED_FILES
+
+mozemy tez sprawdzic ktore pliki zostaly skasowane:
+- ext3grep /dev/vg/bla --search dwa
+- ext3grep /dev/vg/bla --ls --block 579
+jesli teraz widzimy D, tzn ze Deleted
+
+2. odzysk wszystkich plikow
+
+- ext3grep /dev/vg/bla --restore-all
+
+--
+najprostsze sprawdzenie czy port jest otwarty:
+
+nc -z 127.0.0.1 25
+
+nie wyrzuca nic na stdout, wynikiem jest 0 lub 1
+
+--
+sprawdzenie jakich bibliotek albo plikow uzywa dana komenda (zamiast np strace):
+
+LD_DEBUG=libs,files ls
+mozemy tez przekierowac wynik do pliku:
+LD_DEBUG_OUTPUT=/tmp/bla LD_DEBUG=files,libs ls
+
+jesli chcemy uzyc innej opcji LD_DEBUG, to:
+LD_DEBUG=help nm --help
+
+pomocne moze byc tez:
+ldd $(which ls)
+
+--
+zabicie polaczenia tcp z danym hostem/portem:
+
+tcpkill -i wlan0 host 192.168.0.1
+(tcpkill jest w pakiecie dsniff)
+
+--
+automatyczne tworzenie katalogu domowego (np po useradd):
+
+w /etc/pam.d/common-account dodac:
+session    required   pam_mkhomedir.so umask=0077
+
+wtedy po zalogowaniu sie na nowe konto zostanie on utworzony:
+"Creating directory '/home/blah'."
+
+--
+resize zdjec:
+
+for i in $(ls);do echo $i;convert -resize 600x480 $i ${i%.JPG}.jpg;done
+
+--
+sprawdzenie fingerprinta dla serwera ssh:
+
+ssh-keygen -lf /etc/ssh/ssh_host_dsa_key.pub
+
+(ten fingerprint pojawi sie u klienta podczas pierwszego polaczenia ssh do serwera)
+
+--
+przyklady rename:
+(oba prezentuja to samo, ale inne podejscie)
+
+pozbywamy sie "IMG_":
+
+obcinamy IMG_
+orange:/tmp/m$ rename -n 's/IMG_//' *.JPG
+IMG_4489.JPG renamed as 4489.JPG
+IMG_4495.JPG renamed as 4495.JPG
+IMG_4498.JPG renamed as 4498.JPG
+IMG_4499.JPG renamed as 4499.JPG
+
+wybieramy to co jest za IMG_
+orange:/tmp/m$ rename -n 's/IMG_(.*)/$1/' *.JPG
+IMG_4489.JPG renamed as 4489.JPG
+IMG_4495.JPG renamed as 4495.JPG
+IMG_4498.JPG renamed as 4498.JPG
+IMG_4499.JPG renamed as 4499.JPG
+
+--
+wylaczenie wygaszania monitora:
+
+setterm -blank 0 -powersave off -powerdown 0
+
+--
+kolory w grubie /boot/grub/menu.lst:
+
+color yellow/brown white/brown
+
+--
+sprawdzenie skladni i dzialania domeny w dns:
+
+named-checkzone domena.pl plik_strefy
+
+ewentualnie mozna uzyc named-checkconf
+
+--
+zmiana interfejsow sieciowych - eth0 na eth1:
+
+dodajemy /etc/udev/rules.d/10-netinterfaces.rules, a w nim:
+
+KERNEL=="eth*", SYSFS{address}=="00:16:3e:da:17:c0", NAME="eth1"
+
+oczywiscie z poprawnym mac. Teraz zmieniamy w /etc/network/interfaces
+eth0 na eth1 i restartujemy system.
+
+--
+zwiekszanie szybkosci odbudowy raida mdadm:
+
+echo 50000 >/proc/sys/dev/raid/speed_limit_min
+
+--
+zawijanie tekstu po 72 znakach:
+
+fmt -w72 filename.txt
+
+--
+ilosc dodawanych do pliku linii na sekunde:
+
+tail -f /var/log/apache2/access.log | pv -l -i2 -r >/dev/null
+
+2 sekundowe odswierzanie. Uwaga - przy buforowanym zapisie
+do pliku korzystanie z tego nie ma sensu.
+
+--
+pobieranie pliku wgetem po zalogowaniu przez formularz:
+
+logujemy sie:
+wget --post-data='log_in=studium&pass_word=kairos2010' --save-cookies=cookies.txt --keep-session-cookies http://wsft.edu.pl/wyklady/materialy
+
+pobieramy:
+wget --load-cookies=cookies.txt --keep-session-cookies http://wsft.edu.pl/download.php?id=13 -O a.pdf
+
+--
+pobieranie wgetem rekursywnie katalog2, i tylko jego:
+
+wget -r -nH -np --cut-dirs=1 --reject "index.htm*" http://domena.pl/katalog1/katalog2/
+
+--
+run a script, everytime a file in a directory is modified:
+
+while true; do inotifywait -r -e MODIFY dir && script.sh; done
+
+--
+zlaczenie plikow tar.gz
+
+cat 1.tar.gz 2.tar.gz | tar zxvif -
+
+--
+generowanie hasla:
+
+mktemp -u XXXXXXXX
+
+--
+nie chcemy by oomkiller zabil dany proces:
+
+write the value -17 (OOM_DISABLE) to /proc/<pid>/oom_adj for selected process-names
+
+--
+pozbycie sie nonprinting characters z pliku:
+
+cat plik | tr -dc '(\n|[:print:])'
+
+--
+zarchiwizowanie, skompresowanie i podzial na 1GB czesci:
+
+tar zcvf - katalog | split -d -b 1G - katalog.tar.gz
+
+--
+konwersja ext3 -> ext4:
+
+tune2fs -O extents,uninit_bg,dir_index /dev/DEV
+e2fsck -yfDC0 /dev/DEV
+
+--
+zakladanie partycji wiekszej niz 2TB:
+
+parted /dev/sdb
+mklabel gpt
+mkpart primary 0 -0 (pelna wielkosc dysku)
+(albo dany rozmiar: mkpart primary 0 3001G)
+quit
+
+mkfs.ext4 /dev/sdb1
+
+w kernelu musi byc CONFIG_EFI_PARTITION=y,
+partycja nie bedzie rozpoznawana prawidlowo przez fdisk i cfdisk
+
+--
+ukrycie wskaznika myszy po 2 sek:
+
+unclutter -idle 2
+
+--
+data=journal - najbezpieczniejszy tryb przechowywania danych na partycji (ale i najmniej wydajny):
+
+na odmontowanych partycjach:
+tune2fs -o journal_data /dev/sdX
+e2fsck -yf /dev/sdX
+tune2fs -l /dev/sdX , i sprawdzamy
+
+dziala zarowno dla / jak i /home, nie ma potrzeby uzywac rootflags=data=journal w grubie,
+ani data=journal w fstab
+
+--
+sprawdzenie czy procesor jest 64 bitowy:
+
+uname -m
+
+albo
+grep -w lm /proc/cpuinfo
+
+albo
+getconf LONG_BIT
+
+--
+mamy 2 gatewaye (2 rozne lacza): 192.168.7.224 (default) i 192.168.7.223. chcemy by na serwerze za nat-em pakiety
+ze zrodlowym portem 4949 do 1.2.3.4 wychodzily przez 223, reszta normalnie przez 224:
+
+echo 200 gts >>/etc/iproute2/rt_tables
+
+w /etc/network/interfaces:
+
+up /sbin/ip rule add from all fwmark 0x1 table gts
+up /sbin/ip route add default via 192.168.7.223 dev eth0 table gts
+up /sbin/iptables -t mangle -I OUTPUT -p tcp --sport 4949 -d 1.2.3.4 -j MARK --set-mark 0x1
+
+--
+ilosc rzedow i kolumn w oknie terminala:
+
+tput lines
+tput cols
+
+--
+dodawanie informacji na poczatku pliku a:
+
+www.domena.pl:~$ cat a
+1
+2
+3
+4
+www.domena.pl:~$ cat b
+a
+b
+
+
+1.
+sed '1i jeden\ndwa' a
+jeden
+dwa
+1
+2
+3
+4
+
+2.
+sed '$r a' b
+a
+b
+1
+2
+3
+4
+zmodyfikowany zostanie plik b
+
+3.
+cat b a >c
+
+--
+usuniecie ^M:
+
+col -b <file >newfile
+
+perl -pi -e'tr/\015//d' <filename></filename>
+
+--
+print ostatniego znaku:
+
+echo abcd | tail -c2
+
+--
+sprawdzanie modyfikacji pliku:
+
+inotifywait -m access.log
+
+--
+wyciagniecie jednego pliku z *.tar:
+
+-sprawdzamy zawartosc:
+tar tf pakiet.tar
+-wyciagmy:
+tar xvf pakiet.tar pat/to/file/in/tar
+
+--
+kopiowanie (backup) 10GB partycji lvm z progress barem:
+
+nice -n15 dd if=/dev/vg0/repo-disk | pv -s 10G | dd of=/dev/vg0/repo-disk-bak
+
+--
+Show current working directory of a process:
+
+pwdx pid
+
+--
+wydrukowanie manuala:
+
+man -t vcl | ps2pdf - >vcl.pdf
+
+--
+odlaczenie dzialajacego programu od terminala, jesli nie uruchomilismy go wczesniej na screenie:
+
+ctrl+z
+bg
+disown
+
+teraz mozna sie wylogowac
+
+--
+sprawdzanie aktualizacje ktorych pakietow sa krytyczne:
+
+apt-get upgrade -o 'Debug::NoLocking=true' -s -qq | grep -E 'Inst.+Security'
+
+--
+katalogi niezbedne do dzialania w chroocie:
+
+mount -t proc proc chroot/proc
+mount -t sysfs sysfs chroot/sys
+mount -t devpts devpts chroot/dev/pts
+mount -t tmpfs shm chroot/dev/shm
+
+--
+konwersja mp4 na mp3:
+
+for f in *.mp4; do ffmpeg -i $f -acodec libmp3lame -ab 128k $(echo $f | sed 's/\.mp4$/\.mp3/'); done
+
+--
+www-data uruchamia bez hasla skrypt bla.php (z parametrami) jako user evil:
+
+www-data ALL=(evil) NOPASSWD: /usr/bin/php /sciezka/do/pliku/bla.php *
+
+--
+zwiekszanie limitu otwartych plikow dla danej uslugi:
+
+w /etc/default/usluga:
+
+ulimit -n 32768
+
+albo inna liczba, potem restart uslugi.
+Sprawdzic czy dziala mozna w /proc/PID/limits
+Nie ma sensu zwiekszac w /etc/security/limits.conf, bo nie zadziala dla uslug
+
+--
+sprawdzenie ktore pakiety wymagaja danego pakietu:
+
+apt-cache --installed rdepends libmagick10
+
+--
+test przepustowosci:
+
+yes | pv | ssh użytkownik@host "cat > /dev/null"
+
+--
+usuniecie hosta z known_hosts:
+
+ssh-keygen -R host
+
+--
+sortowanie z pominieciem pierwszej linii:
+
+lvs --units g | awk 'NR==1 {print}; NR>1 {print | "sort -k4n"}'
+
+--
+JAVA_HOME:
+
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+
+--
+wynik komendy jako plik png:
+ip a | convert label:@- ip.png
+
+--
+kasowanie duzej ilosci plikow bez zbytniego obciazania systemu:
+
+nice -n18 rm -rf cos_do_skasowania & P=$! && while true; do if \ps -p $P &> /dev/null; then echo rm works; else echo rm finished; break; fi; LOAD=$(cat /proc/loadavg | cut -f1 -d.); if [ $LOAD -gt 10 ]; then echo stop, load is $LOAD; kill -STOP $P; else echo cont; kill -CONT $P; fi; sleep 5; done
+
+--
+rpm cheatsheet
+
+rpm -qa                             - List of installed packages
+rpm -e <package>                    - Uninstall package from system
+rpm -qf /path/to/file               - Which package put this file here
+
+rpm -q --whatprovides <package>     - List of packages provided by the package
+rpm -q --whatrequires <package>     - List of packages required by the package
+rpm -q --provides <package>         - List of files provided by the package
+rpm -q --requires <package>         - List of files required by the package
+rpm -qp --provides package.rpm      - List of files provided by the non-installed package
+rpm -qp --requires package.rpm      - List of files required by the non-installed package
+
+rpm -ql <package>                   - List of files in an installed package
+rpm -qlp package.rpm                - List of files in a non-installed package
+
+rpm -q <package>                    - Returns full name and version of installed package
+rpm -qp package.rpm                 - Returns full name and version of non-installed package
+
+rpm -qi <package>                   - Returns misc details about package
+rpm -qip package.rpm                - Returns misc details about non-installed package
+
+
+yum --showduplicates list <name>
+
+--
+python -c "import pyotp; totp = pyotp.TOTP('SGSZXJSGJUT4BFGIXA6YHGEV2GAMHT7ZDLAUGLPS6LVQS6RSKCFCKU2H3KFJ6IWA'); print(totp.now());"
+
+--
+test github connection:
+ssh -T git@github.com
+ssh -T -p 443 git@ssh.github.com
+
+
+print configuration:
+git config --list
+
+
+reverting a specific commit:
+git revert --strategy resolve 864b836
+
+
+reverting the last commit:
+git revert HEAD
+
+
+diff between local and remote branch:
+git diff new-jenkins origin/new-jenkins
+
+
+show a word diff:
+git diff --word-diff
+
+
+show staged and unstaged changes in one go:
+git st -vv
+
+last change:
+git sh
+git sh (origin/)<branch>
+
+
+history from the other branch:
+git lg (origin/)<branch>
+
+
+rename branch:
+git br -m oldbranch newbranch
+
+
+delete local branch:
+git br -d newbranch
+
+
+rebase of the last 4 commits:
+git rebase -i HEAD~4
+
+
+modify last commit message:
+git ci --amend
+
+
+add another changes to the previous commit:
+git ci --amend --no-edit
+
+
+move tag from one commit to another
+git tag <tag> -f <hash>
+
+
+stash changes not staged:
+git stash -k
+
+
+stash changes not staged and untracked files:
+git stash -k -u
+
+
+stash only staged changes (double stash):
+git stash save -k unstaged
+git stash save staged
+
+
+stash specific file:
+git stash push <filename>
+
+
+push changes in submodules before pushing the parent repo:
+git push --recurse-submodules=on-demand
