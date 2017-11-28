@@ -2367,6 +2367,12 @@ yum --showduplicates list <name>
 python -c "import pyotp; totp = pyotp.TOTP('SGSZXJSGJUT4BFGIXA6YHGEV2GAMHT7ZDLAUGLPS6LVQS6RSKCFCKU2H3KFJ6IWA'); print(totp.now());"
 
 --
+ssh key fingerprint in github format:
+
+ssh-add -lE md5
+ssh-keygen -lE md5 -f file.pub
+
+--
 test github connection:
 ssh -T git@github.com
 ssh -T -p 443 git@ssh.github.com
