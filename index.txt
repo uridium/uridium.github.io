@@ -2453,3 +2453,7 @@ git stash push <filename>
 
 push changes in submodules before pushing the parent repo:
 git push --recurse-submodules=on-demand
+
+
+copy files between branches:
+git co <different_branch> -- ./path/to/dir/
