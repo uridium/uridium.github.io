@@ -2420,6 +2420,8 @@ git br -d newbranch
 
 rebase of the last 4 commits:
 git rebase -i HEAD~4
+and replace "pick" on the second and subsequent commits with "squash". Then:
+git push origin branch-name --force
 
 
 modify last commit message:
