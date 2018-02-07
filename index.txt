@@ -2417,6 +2417,8 @@ git br -m oldbranch newbranch
 delete local branch:
 git br -d newbranch
 
+delete remote branch:
+git push origin --delete newbranch
 
 rebase of the last 4 commits:
 git rebase -i HEAD~4
