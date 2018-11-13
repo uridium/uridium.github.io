@@ -2442,13 +2442,8 @@ stash changes not staged:
 git stash -k
 
 
-stash changes not staged and untracked files:
-git stash -k -u
-
-
-stash only staged changes (double stash):
-git stash save -k unstaged
-git stash save staged
+stash changes staged, not staged and untracked:
+git stash -u
 
 
 stash specific file:
@@ -2461,3 +2456,31 @@ git push --recurse-submodules=on-demand
 
 copy files between branches:
 git co <different_branch> -- ./path/to/dir/
+
+
+remove changes from staged area:
+one file:
+git reset -- <filename>
+all files:
+git reset
+
+
+remove changes not staged yet:
+one file:
+git checkout -- <filename>
+all file:
+git checkout .
+
+
+remove untracked files, directories and ignored files:
+git clean -fdx
+
+
+reset changes to the previous state (commit):
+git reset @^
+
+
+undo previous reset:
+git reset @@{1}
+or
+git reset ORIG_HEAD
