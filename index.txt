@@ -2484,3 +2484,7 @@ undo previous reset:
 git reset @@{1}
 or
 git reset ORIG_HEAD
+
+
+undo a merge/rebase:
+git reset --merge ORIG_HEAD
