@@ -2401,10 +2401,6 @@ git diff --word-diff
 show staged and unstaged changes in one go:
 git st -vv
 
-last change:
-git sh
-git sh (origin/)<branch>
-
 
 history from the other branch:
 git lg (origin/)<branch>
@@ -2417,8 +2413,10 @@ git br -m oldbranch newbranch
 delete local branch:
 git br -d newbranch
 
+
 delete remote branch:
 git push origin --delete newbranch
+
 
 rebase of the last 4 commits:
 git rebase -i HEAD~4
@@ -2488,3 +2486,19 @@ git reset ORIG_HEAD
 
 undo a merge/rebase:
 git reset --merge ORIG_HEAD
+
+
+remove local branches that were deleted in the remote repository:
+git remote update --prune
+
+
+find the commit that contains given string:
+git log -p -S <string>
+
+
+worktree - checkeout branch to a different directory:
+git worktree add <path> <branch>
+cd <path>
+hack, hack, hack, commit/push
+cd -
+git worktree remove <path>
