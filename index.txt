@@ -2474,7 +2474,7 @@ remove untracked files, directories and ignored files:
 git clean -fdx
 
 
-reset changes to the previous state (commit):
+undo the most recent local commit:
 git reset @^
 
 
