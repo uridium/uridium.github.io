@@ -1045,6 +1045,9 @@ find -maxdepth 1 -newermt 2013-11-11 ! -newermt 2013-11-12 -ls
 pliki zmodyfikowane 2013-11-11
 (od wersji find 4.3.3)
 
+find -depth -execdir rename "y/[A-Z]/[a-z]/" "{}" "+"
+rename all files and directories recursively
+
 --
 Wylaczenie speakera w komputerze:
 
