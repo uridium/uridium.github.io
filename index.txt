@@ -2477,6 +2477,12 @@ remove untracked files, directories and ignored files:
 git clean -fdx
 
 
+undo pop:
+git reset @ --hard
+git checkout my_correct_branch
+git stash pop
+
+
 undo the most recent local commit:
 git reset @^
 
