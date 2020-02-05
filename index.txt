@@ -2459,13 +2459,6 @@ copy files between branches:
 git co <different_branch> -- ./path/to/dir/
 
 
-remove changes from staged area:
-one file:
-git reset -- <filename>
-all files:
-git reset
-
-
 remove changes not staged yet:
 one file:
 git checkout -- <filename>
@@ -2475,6 +2468,13 @@ git checkout .
 
 remove untracked files, directories and ignored files:
 git clean -fdx
+
+
+undo add:
+one file:
+git reset -- <filename>
+all files:
+git reset
 
 
 undo pop:
