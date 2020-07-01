@@ -2393,6 +2393,10 @@ reverting the last commit:
 git revert HEAD
 
 
+revert 3 most recent commits without commiting:
+git revert --no-commit @~3..
+
+
 diff between local and remote branch:
 git diff new-jenkins origin/new-jenkins
 
