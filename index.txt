@@ -2509,6 +2509,10 @@ find the commit that contains given string:
 git log -p -S <string>
 
 
+show a file from the current directory, but from another branch:
+git show <branch>:$(git rev-parse --show-prefix)<filename>
+
+
 worktree - checkeout branch to a different directory:
 git worktree add <path> <branch>
 cd <path>
