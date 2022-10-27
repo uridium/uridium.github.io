@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<pre>
+Tunelowanie SSH:
+
+slucha lokalnie na 8888 i przekazuje na <host_docelowy>:<port_docelowy>
+	ssh user@host -L8888:<host_docelowy>:<port_docelowy>
+
+slucha zdalnie na 8888 i przekazuje na <host_docelowy>:<port_docelowy>
+	ssh user@host -R 8888:<host_docelowy>:<port_docelowy>
+
+--
+Tunelowanie Stunnel
+
+Tunel SSL od klienta: localhost:8888 > tam:443
+	stunnel -c -d localhost:8888 -r <zdalny_host>:443
+
+Tunel przy braku wsparcia SSL na serwerze:
+	stunnel -d <adres_serwera>:443 -r localhost:80
+
+--
+Szyfrowanie i deszyfrowanie plików gpg:
+
+gpg -c plik
+gpg --decrypt plik.gpg >plik
+
+--
+Przyklady lsof:
+wszystkie otwarte pliki w katalogu /tmp:
+
+lsof +D /tmp
+
+polaczenia na porcie 80:
+
+lsof -i:80
+
+polaczenia UDP:
+
+lsof -i UDP
+
+sockety:
+
+lsof -U
+
+polaczenia sieciowe:
+
+lsof -i -P -n
+
+pliki otwarte ale skasowane:
+
+lsof +L1
+
+symulacja tcptrack:
+
+lsof -r 1 -P -n -p <PID> -a -i TCP
+
+podglad co sekunde uslug korzystajacych z portu 30001
+
+lsof -r 1 -P -n -i :30001
+
+--
+przyklady tail i head:
+
+$ cat a
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+ostatnie 3 linie:
+
+$ tail -n -3 a
+7
+8
+9
+
+
+wszystko procz pierwszych 3 linii:
+
+$ tail -n +3 a
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+pierwsze 3 linie:
+
+$ head -n 3 a
+0
+1
+2
+
+
+wszystko procz ostatnich 3 linii:
+
+$ head -n -3 a
+0
+1
+2
+3
+4
+5
+6
+
+--
+Okienko powiadomienia:
+
+gmessage "Hello" -nofocus -buttons "GTK_STOCK_OK:0"
+
+najlepiej uzyc z at, np: at 13:05
+echo 'DISPLAY=:1.0 gmessage "Hello" -nofocus -buttons "GTK_STOCK_OK:0"' | at 13:05
+
+--
+Diff na zawartosci katalogow:
+
+diff -u <(l kataloga) <(l katalogb)
+
+--
+Porownywanie liczb calkowitych:
+	(($foo != 1)) && { echo bar; }
+
+Porownywanie ciagu znakow:
+	[[ $foo == bar ]] && { echo bar; }
+
+--
+Przyklady obliczen:
+
+echo $(((2+3)*3))
+echo '(2+3)*3'|bc
+
+--
+Pokazywanie i usuwanie znakow niedrukowalnych z konca linii:
+
+$ cat -et plik
+jeden $
+dwa^I$
+trzy$
+
+$ sed -i 's/[ \t]*$//' plik
+
+$ cat -et plik
+jeden$
+dwa$
+trzy$
+
+--
+Usuwanie plikow o dziwnych nazwach:
+
+rm ./-delete_me
+rm -- --delete_me
+
+--
+Losowa liczba 0-50:
+
+echo $(expr $RANDOM % 51)
+
+--
+Suma liczb z drugiej kolumny, jesli w pierwszej wystepuje dokladnie slowo "radar":
+
+awk '$1=="radar" {sum+=$2} END {print sum}'
+
+Wypisuje wszystkie kolumny, jesli w drugiej wystepuja cyfry 0-9, na samej gorze wypisuje "POCZATKOWY NAPIS":
+
+awk 'BEGIN {print "POCZATKOWY NAPIS"} $2~/[0-9]/ {print $0}'
+
+Wypisz wszystkie linie, ktorych kolumna 1 ma slowo "radar" i kolumna 3 > 0.5:
+
+awk '$1=="radar" && $3>0.5 {print $0}'
+albo krocej:
+awk '$1=="radar" && $3>0.5'
+
+Wypisz kolumne 2, jesli pierwsza jest oznaczona od "piec" do "hihi":
+
+awk '$1~/piec/,/hihi/ {print $2}'
+
+Sumuje pierwsza kolumne - duze liczby:
+
+awk '{sum+=$1} END {OFMT="%0.f"; print sum}'
+
+Wypisanie wierszy z pliku od 5 do 7:
+
+awk 'NR >= 5 && NR <= 7'
+
+Wypisanie 5 wiersza z pliku:
+
+awk 'NR == 5'
+
+Numeracja wierszy:
+
+awk '{print NR, $1}'
+
+Wypisuje linie od 'dwa' do 'siedem':
+
+awk '/^dwa$/,/^siedem$/'
+
+Wypisuje linie od '13:37:15' do końca:
+
+awk '/13:37:15/,EOF'
+
+Wyciagniecie IP z netstat i zliczenie:
+
+/bin/netstat -punta|awk '/87\.206\./ {split($5,i,":");print i[1]}'|sort -u|wc -l
+
+prints lines that match /foo/ and /bar/:
+
+awk '/foo/ && /bar/'
+
+prints lines that match /foo/ but not /bar/:
+
+awk '/foo/ && !/bar/'
+
+prints lines that match /foo/ or /bar/ (like grep -e 'foo' -e 'bar')
+
+awk '/foo/ || /bar/'
+
+ostatnie pole kazdej linii:
+
+awk '{ print $NF }'
+
+usuwa puste linie:
+
+awk NF
+awk '/./'
+
+--
+Usuwa linie 2-4:
+
+sed '2,4d'
+
+Usuwa puste linie:
+
+sed '/^$/d'
+
+Drukuje linie 2-4:
+
+sed -n '2,4p'
+
+Drukuje linie 45-50 (szybkie na duzych plikach - jest zauwazalna roznica):
+
+sed -n '51q;45,50p'
+
+W ktorej linii znajduja sie wyrazy Database:
+
+sed -n '/Databases/='
+
+Wstawia za linia 8 "hahaha":
+
+sed '8 a hahaha'
+
+Wstawia przed linia 8 "hahaha":
+
+sed '8 i hahaha'
+
+wypisuje linie od 'dwa' do 'siedem':
+
+sed -n '/^dwa$/,/^siedem$/p'
+
+Substitute "foo" with "bar" ONLY for lines which contain "baz":
+
+sed '/baz/s/foo/bar/g'
+
+Substitute "foo" with "bar" EXCEPT for lines which contain "baz":
+
+sed '/baz/!s/foo/bar/g'
+
+Wyszukuje 632 linie z pliku (szybkie na duzych plikach):
+
+sed '632q;d'
+
+Usuwa ostatnia linie z pliku:
+
+sed '$d'
+
+Dodatkowe odstepy miedzy wierszami:
+
+sed G
+
+Odstep po kazdej linii zawierajacej regex:
+
+sed '/regex/{x;p;x;}'
+
+Odstep przed kazda linia zawierajaca regex:
+
+sed '/regex/G'
+
+Usuniecie 10 poczatkowych znakow z pliku:
+
+sed 's/^.\{10\}//' plik
+
+Print the line immediately before regexp, but not the line containing the regexp:
+
+sed -n '/regexp/{g;1!p;};h'
+
+Print the line immediately after regexp, but not the line containing the regexp.
+
+sed -n '/regexp/{n;p;}'
+
+Wyswietla 120 i 145 linie z pliku:
+
+sed -n -e 120p -e 145p -e 1050p /var/log/syslog
+
+Zamienia cala linie zawierajaca slowo bla na 'jeden dwa trzy':
+
+echo bla abc 123 | sed '/abc/c jeden dwa trzy'
+
+--
+kopiowanie bazy host-host z progress-barem:
+
+pg_dump baza | pv -W -s 80G | psql -h host -d baza -U login -W  >/tmp/1.log 2>/tmp/2.log
+
+-s to ilosc danych do przeslania
+-W czeka na wprowadzenie hasla zanim zacznie wyswietlac progress-bar
+
+--
+duplikaty plikow:
+
+fdupes
+
+--
+screen:
+
+chwilowe zabezpieczenie haslem (uzytkowika w systemie):
+  ctrl+a x
+
+
+podlaczenie do biezacej sesji:
+  screen -x
+
+
+ustawienie hasla zapobiegajacego podlaczeniu sie do biezacej sesji:
+  ctrl+a :
+  password blabla
+
+reset tego hasla:
+  ctrl+a :
+  passowrd none
+
+ustawienie na sztywno tego hasla w .screenrc:
+  password blabla
+
+zapis komend i wynikow do logu screenlog.0:
+  screen -L
+
+--
+przyklady openssl:
+
+
+kodowanie tekstu do base64:
+
+$ echo blah | openssl base64
+YmxhaAo=
+
+
+dekodowanie z base64 do tekstu:
+
+$ echo YmxhaAo= | openssl base64 -d
+blah
+
+
+md5 pliku:
+
+openssl md5 plik
+
+
+szyfrowanie pliku:
+
+openssl aes-256-cbc -a -salt -in secrets.txt -out secrets.txt.enc
+
+deszyfrowanie pliku:
+
+openssl aes-256-cbc -d -a -in secrets.txt.enc -out secrets.txt.new
+
+
+testowanie polaczenia ssl:
+
+openssl s_client -connect domena.pl:465
+
+i na port 25 z STARTTLS
+
+openssl s_client -starttls smtp -connect domena.pl:25
+
+--
+Find, przyklady:
+
+find  /home/mariusz/export -type f -iregex '.+/img/.+\.\(jpg\|png\|gif\|bmp\)' -mtime +30 -print0 | xargs -0 echo nice -n18 rm
+wyszukuje i usuwa:
+/home/mariusz/export/partners/acn/img/mieszkanie41230_22547.jpg
+
+find /tmp -maxdepth 1 -regextype posix-extended -iregex '/tmp/[0-9a-z]{32}_[0-9a-f]{1,}' -type f -uid 1003 -mmin +60 -delete
+wyszukuje i usuwa w /tmp bez podkatalogow pliki typu f6bddc05efc121a0bc4ee50bc695071e_4823 ktorym wlascicielem jest
+user o uid=1003 i ktore sa starsze niz 60 minut
+
+find /home/*ftp -regextype posix-extended -type f -iregex ".+/oferty\\{.+\\}-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}-[0-9]{2}\.(mls|zip)" -mtime +30 -print0 | xargs -0 nice -n18 rm
+wyszukuje i usuwa:
+/home/fxftp/oferty{8D0A3ECB-B83A-47D7-A601-4940D29487B3}-2008-03-27-16-23-49.mls
+/home/hrftp/oferty{A9952440-F401-43C2-8BA8-D263B962DC58}-2008-04-08-15-43-02.zip
+
+find /home/*ftp ! \( -name dolftp -prune  -o -name polftp -prune \) -type f -mtime +30
+wyszukuje we wszystkich katalogach procz dolftp i polftp pliki starsze niz 30 dni
+
+find -mmin -15 \( ! -regex ".*/\..*" \)
+wyszukuje pliki zmodyfikowane w ciagu ostatnich 15 minut, procz plikow ukrytych
+
+find -daystart -mtime 0 -type f
+pliki zmodyfikowane WCZORAJ
+
+find -daystart -mtime 1 -type f
+pliki zmodyfikowane 2 DNI TEMU
+
+touch -t 200612310000 template
+find katalog -name oferty*.zip \! -newer template
+usuwa pliki starsze niz 20061231
+
+find -maxdepth 1 -newermt 2013-11-11 ! -newermt 2013-11-12 -ls
+pliki zmodyfikowane 2013-11-11
+(od wersji find 4.3.3)
+
+find -depth -execdir rename "y/[A-Z]/[a-z]/" "{}" "+"
+rename all files and directories recursively
+
+--
+Przegenerowanie kluczy ssh:
+
+ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
+ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
+
+--
+bash tips:
+
+Undo modyfikowanej linii w bashu:
+
+ctrl+_
+
+kasowanie slowa za kursorem:
+alt+d
+
+kasowanie slowa przed kursorem:
+ctrl+w
+
+zamiana liter za kursorem na duze:
+alt+U
+
+zamiana liter za kursorem na male:
+alt+L
+
+zamiana dwoch slow miejscami:
+alt+T
+
+wstawienie ostatniego slowa wczesniejszego polecenia:
+alt+.
+
+numer linii w skrypcie:
+echo $LINENO
+
+Run the previous shell command but replace string “foo” with “bar”:
+^foo^bar^
+
+przyklady powtarzania argumentow:
+
+lemon:~$ echo a b c d
+a b c d
+
+pierwszy ciag niebedacy poleceniem:
+echo !^
+a
+
+wszystkie ciagi niebedace poleceniem:
+echo !*
+a b c d
+
+ostatni ciag niebedacy poleceniem:
+echo !$
+d
+
+drugi ciag niebedacy poleceniem:
+echo !:2
+b
+
+zakres od drugiego do trzeciego ciagu niebedacego poleceniem:
+echo !:2-3
+b c
+
+zakres od drugiego do ostatniego ciagu niebedacego poleceniem:
+echo !:2-$
+b c d
+
+zakres od drugiego do ostatniego ciagu niebedacego poleceniem,
+oprocz ostatniego ciagu:
+echo !:2-
+b c
+
+cale ostatnie polecenie, wraz z argumentami, bez ostatniego
+argumentu:
+!!:-
+a b c
+
+w podobny sposob powtarzamy argumenty nie dla poprzedniego
+polecenia, ale tez aktualnego:
+lemon:~$ echo a b c d !#:2-$
+echo a b c d b c d
+a b c d b c d
+
+
+Zwraca test, jesli zmienna $1 nie jest zdefiniowana:
+
+LOG=${1:-haha}
+echo $LOG
+
+Usuwa najkrotsza poczatkowa pasujaca czesc do wzorca:
+
+echo ${PATH#*:}
+/usr/bin:/bin:/usr/bin/X11:/usr/games
+
+Usuwa najdluzsza poczatkowa pasujaca czesc do wzorca:
+
+echo ${PATH##*:}
+/usr/games
+
+Usuwa najkrotsza koncowa pasujaca czesc do wzorca:
+
+echo ${PATH%:*}
+/usr/local/bin:/usr/bin:/bin:/usr/bin/X11
+
+Usuwa najdluzsza koncowa pasujaca czesc do wzorca:
+
+echo ${PATH%%:*}
+/usr/local/bin
+
+Zastepuje ciagiem pierwszy znaleziony wzorzec:
+
+echo ${PATH/:/-}
+/usr/local/bin-/usr/bin:/bin:/usr/bin/X11:/usr/games
+
+Zastepuje ciagiem wszystkie znalezione wzorce:
+
+echo ${PATH//:/-}
+/usr/local/bin-/usr/bin-/bin-/usr/bin/X11-/usr/games
+
+wczytywanie pliku, 4 sposoby:
+
+while read line;do echo $line;done <plik
+while read;do echo $REPLY;done <plik
+cat plik | while read line;do echo $line;done
+cat plik | while read;do echo $REPLY;done
+
+Delete all files in a folder that don't match a certain file extension:
+rm !(*.foo|*.bar|*.baz)
+
+comment current line:
+<ESC> #
+-
+
+history:
+
+builder64.domena:~$ echo a b c d
+a b c d
+builder64.domena:~$ !!:0- z
+echo a b c z
+a b c z
+-
+
+Convert text to uppercase
+upper() { echo ${@^^}; }
+
+Convert text to lowercase
+lower() { echo ${@,,}; }
+-
+
+rozne sposoby na listowanie istniejacych zmiennych,
+np wszystkich zaczynajacych sie od "BASH":
+
+compgen -v | grep BASH
+echo ${!BASH*}
+( set -o posix ; set ) | grep BASH
+
+to ostatnie pokazuje od razu wartosci
+-
+utworzenie katalogu i przejście do niego:
+
+mkdir abc && cd $_
+
+--
+vim tips:
+
+przejscie do drugiej linii od gory ekranu
+2H
+
+przejscie do czwartej linii od dolu ekranu
+4L
+
+przejscie na srodek ekranu
+M
+
+przeniesienie aktualnej linii z kursorem na gore ekranu
+zt
+
+przeniesienie aktualnej linii z kursorem na dol ekranu
+zb
+
+przeniesienie aktualnej linii z kursorem na srodek ekranu
+zz
+
+zlaczenie linii bez spacji
+gJ
+
+przejscie do polowy pliku (50%)
+50%
+
+ustawienie zakladki:
+m<znak>
+
+przejscie do zakladki
+`<znak>
+
+wylistowanie zakladek
+:marks
+
+goes to the insert mode where you left in last time
+gi
+
+przejscie do nastepnej linii, jesli jest ona zawinieta w edytorze
+(czyli nie zlamana)
+gj (gk - do poprzedniej)
+
+zmiana akutalnego znaku z nastepnym
+xp
+
+dopelnianie slowa:
+ctrl+x ctrl+n
+
+dopelniania linii:
+ctrl+x ctrl+l
+
+dopelnianie nazwy pliku:
+ctrl+x ctrl+f
+
+edycja w vim aktualnej linii z terminala:
+(po zapisaniu zostanie ona wykonana)
+ctrl+x ctrl+e
+
+otworz zakladke
+zo
+
+zamknij zakladke
+zc
+
+otworz wszystkie zakladki
+zR
+
+zamknij wszystkie zakladki
+zM
+
+kasuj dana zakladke
+zd
+
+kasuj wszystkie zakladki
+zE
+
+zamienia taby na spacje
+:set expandtab
+:retab!
+
+u - undo
+ctrl+r - redo
+U - current line with original state
+
+lowercase line
+guu
+albo gu$
+
+uppercase line
+gUU
+albo gU$
+
+lowercase word
+gue
+
+uppercase word
+gUe
+
+zmiana uppercase na lowercase wybranego wyrazu w całym pliku:
+:%s/WYRAZ/\L&/g
+
+rozne znaczki:
+:digraphs
+jesli chemy miec 'u' z dwoma kropkami, to w insert mode:
+ctrl+k u:
+
+zapisanie sesji pracy:
+:mksession plik.vim
+i odtworzenie jej (np nastepnego dnia)
+:so plik.vim
+
+wypisanie na dole ekranu linii od 3 do 8:
+:3,8 print
+
+wyswietlenie wartosci opcji:
+:set option?
+
+ustawienie domyslnej wartosci opcji
+:set option&
+
+opisy opcji
+:options
+
+wklejanie:
+ctrl+r, potem "
+
+wklejanie poprzednio wklejonego tekstu:
+ctrl+a
+
+Toggle between Insert and Replace mode:
+<ins>
+
+remove ^M characters at end of lines:
+:%s/^M//g
+(The ^v is a CONTROL-V character and ^m is a CONTROL-M)
+
+formatowanie konca linii na unix:
+:set ff=unix
+
+zapis pliku do ktorego nie mamy uprawnien:
+:w !sudo tee %
+
+jednoczesne operacje we wszystkich tabach:
+:tabdo
+np zmieniamy 222 na 2222 we wszystkich tabach, zapisujemy i zamykamy:
+:tabdo %s/222/2222/|wq
+| laczy komendy
+
+jednoczesne operacje we wszystkich buforach:
+np zmieniamy "gather_facts: yes" na "gather_facts: no" i zapisujemy
+:bufdo %s/gather_facts: yes/gather_facts: no/g | wa
+
+windows:
+Swap top/bottom or left/right split
+Ctrl+w r
+
+cycle between the open windows
+ctrl-w ctrl-w
+
+focus the window to the down/up
+ctrl-w j/k
+
+Normalize all split sizes, which is very handy when resizing terminal
+ctrl + w =
+
+Close every window in the current tabview but the current one
+ctrl + w o
+
+open new file in new window, horizontal/vertical
+:sp filename OR ctrl+w s
+:vsp filename OR ctrl+w v
+
+--
+testy http:
+
+curl -IL --interface 192.168.1.10 wp.pl
+
+siege -g wp.pl
+
+wget -S wp.pl
+
+GET -dusUS wp.pl
+GET -dusUSe wp.pl
+
+HEAD -uUS wp.pl
+
+--
+konwersja daty epoch => ludzka
+
+date -d @1225910682
+
+i odwrotnie:
+
+date -d '2011-12-05 12:00' +%s
+
+--
+sortowanie:
+
+$ cat ip
+10.0.0.2
+192.168.0.4
+10.0.0.5
+192.168.0.2
+192.168.0.12
+10.0.0.20
+
+sortujemy rozdzielajac pola kropka (.), potem rozpoczynajac od pola pierwszego (1) i konczac (,) na polu pierwszym (1)
+z sortowaniem numerycznym (n)
+
+$ cat ip | sort -t "." -k 1,1n -k 2,2n -k 3,3n -k 4,4n
+10.0.0.2
+10.0.0.5
+10.0.0.20
+192.168.0.2
+192.168.0.4
+192.168.0.12
+
+--
+tablica w bash:
+
+zadeklarowanie:
+T=($(ls -1 /))
+
+listowanie jednego elementu:
+echo ${F[0]}
+
+ilosc elementow:
+echo ${#F[@]}
+
+listowanie wszystkich elementow:
+for i in $(seq 0 ${#T[@]});do echo ${T[$i]};done
+
+
+declare -A array
+array[foo]=bar
+array[bar]=foo
+
+for i in "${!array[@]}"
+do
+  echo "key  : $i"
+  echo "value: ${array[$i]}"
+done
+
+--
+numerowanie wierszy:
+
+cat -n <plik> = nl -ba <plik>
+cat -b <plik> = nl <plik>
+
+--
+przyklady ngrep:
+
+-zadania i odpowiedzi HTTP
+ngrep -qtd wlan0 '^(GET|HTTP)' port 80
+
+-zadania POST, buforowane, w czytelnej postaci:
+ngrep -W byline -tlqd lo '^POST' port 8080
+
+-zadania POST, buforowane, pierwszych 50 znakow
+ngrep -S 50 -tlqd lo '^POST' port 8080
+
+-login i haslo w POP3
+ngrep -qtd wlan0 -wi 'user|pass' port 110
+
+- protokol HTTP, dodatkowo zapisany w formacie pcap
+ngrep -qtd wlan0 port 80 -O ip.log
+
+--
+sprawdzenie fingerprinta dla serwera ssh:
+
+ssh-keygen -lf /etc/ssh/ssh_host_dsa_key.pub
+
+(ten fingerprint pojawi sie u klienta podczas pierwszego polaczenia ssh do serwera)
+
+--
+dodawanie informacji na poczatku pliku a:
+
+$ cat a
+1
+2
+3
+4
+$ cat b
+a
+b
+
+
+1.
+sed '1i jeden\ndwa' a
+jeden
+dwa
+1
+2
+3
+4
+
+2.
+sed '$r a' b
+a
+b
+1
+2
+3
+4
+zmodyfikowany zostanie plik b
+
+3.
+cat b a >c
+
+--
+JAVA_HOME:
+
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+
+--
+test github connection:
+ssh -T git@github.com
+ssh -T -p 443 git@ssh.github.com
+
+
+diff between local and remote branch:
+git diff <branch_name> origin/<branch_name>
+
+
+history from the other branch:
+git lg (origin/)<branch_name>
+
+
+rename branch:
+git br -m <old_branch> <new_branch>
+
+
+delete local branch:
+git br -d <new_branch>
+
+
+delete remote branch:
+git push origin --delete <new_branch>
+
+
+rebase of the last 4 commits:
+git rebase -i @~4
+Replace "pick" on the second and subsequent commits with "squash", and then:
+git push origin <branch_name> --force
+
+
+modify the last commit message:
+git ci --amend
+
+
+add another changes to the previous commit:
+git ci --amend --no-edit
+
+
+move tag from one commit to another
+git tag <tag> -f <hash>
+
+
+stash changes not staged:
+git stash -k
+
+
+stash staged, not staged and untracked changes:
+git stash -u
+
+
+stash specific file:
+git stash push <file_name>
+
+
+push changes in submodules before pushing the parent repo:
+git push --recurse-submodules=on-demand
+
+
+remove untracked files, directories and ignored files:
+git clean -fdx
+
+
+copy files between branches:
+git restore -s <different_branch> path/to/file
+
+
+remove changes not staged yet (for modified files):
+git restore <file_name> (for a single file)
+git restore . (for all the files)
+
+
+remove staged changes (undo add):
+git restore --staged <file_name> (for a single file)
+git restore --staged . (for all the files)
+
+
+undo pop:
+git reset --hard @
+git switch <my_correct_branch>
+git stash pop
+
+
+undo the most recent local commit:
+git reset @^  (unstages the changes)
+git reset --soft @^ (keeps the changes staged)
+git reset --hard @^ (removes uncommited changes)
+
+
+undo merge:
+git reset --merge @^ (keeps uncommited changes)
+
+
+reverting commits:
+git revert @ (reverts the most recent commit)
+git revert --no-commit @~3.. (reverts 3 most recent commits without commiting)
+git revert --strategy resolve 864b836 (reverts a specific commit)
+
+
+push with force, but don't overwrite someone else's work on the remote branch:
+git push --force-with-lease --force-if-includes
+
+
+find the commit that contains a specific string:
+git log -p -S <string>
+</pre>
