@@ -1,5 +1,112 @@
 <!DOCTYPE html>
 <pre>
+test github connection:
+ssh -T git@github.com
+ssh -T -p 443 git@ssh.github.com
+
+
+diff between local and remote branch:
+git diff <branch_name> origin/<branch_name>
+
+
+history from the other branch:
+git lg (origin/)<branch_name>
+
+
+rename branch:
+git br -m <old_branch> <new_branch>
+
+
+delete local branch:
+git br -d <new_branch>
+
+
+delete remote branch:
+git push origin --delete <new_branch>
+
+
+rebase of the last 4 commits:
+git rebase -i @~4
+Replace "pick" on the second and subsequent commits with "squash", and then:
+git push origin <branch_name> --force
+
+
+modify the last commit message:
+git ci --amend
+
+
+add another changes to the previous commit:
+git ci --amend --no-edit
+
+
+move tag from one commit to another
+git tag <tag> -f <hash>
+
+
+stash changes not staged:
+git stash -k
+
+
+stash staged, not staged and untracked changes:
+git stash -u
+
+
+stash specific file:
+git stash push <file_name>
+
+
+push changes in submodules before pushing the parent repo:
+git push --recurse-submodules=on-demand
+
+
+remove untracked files, directories and ignored files:
+git clean -fdx
+
+
+copy files between branches:
+git restore -s <different_branch> path/to/file
+
+
+remove changes not staged yet (for modified files):
+git restore <file_name> (for a single file)
+git restore . (for all the files)
+
+
+remove staged changes (undo add):
+git restore --staged <file_name> (for a single file)
+git restore --staged . (for all the files)
+
+
+undo pop:
+git reset --hard @
+git switch <my_correct_branch>
+git stash pop
+
+
+undo the most recent local commit:
+git reset @^  (unstages the changes)
+git reset --soft @^ (keeps the changes staged)
+git reset --hard @^ (removes uncommited changes)
+
+
+undo merge:
+git reset --merge @^ (keeps uncommited changes)
+
+
+reverting commits:
+git revert @ (reverts the most recent commit)
+git revert --no-commit @~3.. (reverts 3 most recent commits without commiting)
+git revert --strategy resolve 864b836 (reverts a specific commit)
+
+
+push with force, but don't overwrite someone else's work on the remote branch:
+git push --force-with-lease --force-if-includes
+
+
+find the commit that contains a specific string:
+git log -p -S <string>
+
+--
 Tunelowanie SSH:
 
 slucha lokalnie na 8888 i przekazuje na <host_docelowy>:<port_docelowy>
@@ -894,111 +1001,4 @@ cat b a >c
 JAVA_HOME:
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
-
---
-test github connection:
-ssh -T git@github.com
-ssh -T -p 443 git@ssh.github.com
-
-
-diff between local and remote branch:
-git diff <branch_name> origin/<branch_name>
-
-
-history from the other branch:
-git lg (origin/)<branch_name>
-
-
-rename branch:
-git br -m <old_branch> <new_branch>
-
-
-delete local branch:
-git br -d <new_branch>
-
-
-delete remote branch:
-git push origin --delete <new_branch>
-
-
-rebase of the last 4 commits:
-git rebase -i @~4
-Replace "pick" on the second and subsequent commits with "squash", and then:
-git push origin <branch_name> --force
-
-
-modify the last commit message:
-git ci --amend
-
-
-add another changes to the previous commit:
-git ci --amend --no-edit
-
-
-move tag from one commit to another
-git tag <tag> -f <hash>
-
-
-stash changes not staged:
-git stash -k
-
-
-stash staged, not staged and untracked changes:
-git stash -u
-
-
-stash specific file:
-git stash push <file_name>
-
-
-push changes in submodules before pushing the parent repo:
-git push --recurse-submodules=on-demand
-
-
-remove untracked files, directories and ignored files:
-git clean -fdx
-
-
-copy files between branches:
-git restore -s <different_branch> path/to/file
-
-
-remove changes not staged yet (for modified files):
-git restore <file_name> (for a single file)
-git restore . (for all the files)
-
-
-remove staged changes (undo add):
-git restore --staged <file_name> (for a single file)
-git restore --staged . (for all the files)
-
-
-undo pop:
-git reset --hard @
-git switch <my_correct_branch>
-git stash pop
-
-
-undo the most recent local commit:
-git reset @^  (unstages the changes)
-git reset --soft @^ (keeps the changes staged)
-git reset --hard @^ (removes uncommited changes)
-
-
-undo merge:
-git reset --merge @^ (keeps uncommited changes)
-
-
-reverting commits:
-git revert @ (reverts the most recent commit)
-git revert --no-commit @~3.. (reverts 3 most recent commits without commiting)
-git revert --strategy resolve 864b836 (reverts a specific commit)
-
-
-push with force, but don't overwrite someone else's work on the remote branch:
-git push --force-with-lease --force-if-includes
-
-
-find the commit that contains a specific string:
-git log -p -S <string>
 </pre>
