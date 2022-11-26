@@ -67,14 +67,18 @@ copy files between branches:
 git restore -s <different_branch> path/to/file
 
 
-remove changes not staged yet (for modified files):
-git restore <file_name> (for a single file)
-git restore . (for all the files)
+remove changes not staged yet:
+git restore <file_name> (to discard a single file)
+git restore -p <file_name> (to select and discard hunks from a single file)
+git restore . (to discard all the files)
+git restore -p . (to select and discard hunks from all the files)
 
 
-remove staged changes (undo add):
-git restore --staged <file_name> (for a single file)
-git restore --staged . (for all the files)
+remove staged changes:
+git restore -S <file_name> (to discard a single file)
+git restore -Sp <file_name> (to select and discard hunks from a single file)
+git restore -S . (to discard all the files)
+git restore -Sp . (to select and discard hunks from all the files)
 
 
 undo pop:
