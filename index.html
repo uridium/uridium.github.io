@@ -88,9 +88,9 @@ git stash pop
 
 
 undo the most recent local commit:
-git reset @^  (unstages the changes)
-git reset --soft @^ (keeps the changes staged)
-git reset --hard @^ (removes uncommited changes)
+git reset --soft @^ (and keep the changes staged)
+git reset @^  (and keep the changes unstaged)
+git reset --hard @^ (and remove the changes)
 
 
 undo merge:
