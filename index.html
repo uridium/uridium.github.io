@@ -97,6 +97,10 @@ undo merge:
 git reset --merge @^ (keeps uncommited changes)
 
 
+undo rebase:
+git reset --hard ORIG_HEAD
+
+
 reverting commits:
 git revert @ (reverts the most recent commit)
 git revert --no-commit @~3.. (reverts 3 most recent commits without commiting)
