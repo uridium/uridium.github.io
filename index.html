@@ -5,96 +5,107 @@ ssh -T git@github.com
 ssh -T -p 443 git@ssh.github.com
 
 
-diff between local and remote branch:
-git diff <branch_name> origin/<branch_name>
+diff between a local and a remote branch:
+git diff <branch> origin/<branch>
 
 
-history from the other branch:
-git lg (origin/)<branch_name>
+show history from the other branch:
+git log (origin/)<branch>
+
+
+show history for the single file with a full diff, insertions and deletions for every commit:
+git log -p --stat -- <file>
+
+
+find the commit that contains a specific string:
+git log -p -S <string>
+git log -p -G <regex>
+
+
+group every commit by author:
+git shortlog -e
 
 
 rename branch:
-git br -m <old_branch> <new_branch>
+git branch -m <old_branch> <new_branch>
 
 
 delete local branch:
-git br -d <new_branch>
+git branch -d <local_branch>
 
 
 delete remote branch:
-git push origin --delete <new_branch>
+git push origin --delete <remote_branch>
 
 
-rebase of the last 4 commits:
+rebase the last 4 commits:
 git rebase -i @~4
-Replace "pick" on the second and subsequent commits with "squash", and then:
-git push origin <branch_name> --force
+Replace "pick" on the second and subsequent commits with "squash"
 
 
 modify the last commit message:
-git ci --amend
+git commit --amend
 
 
 add another changes to the previous commit:
-git ci --amend --no-edit
+git commit --amend --no-edit
 
 
 move tag from one commit to another
-git tag <tag> -f <hash>
+git tag <tag> -f <sha>
 
 
-stash changes not staged:
+stash changes which are staged and not staged:
+git stash
+
+
+stash changes which are not staged:
 git stash -k
 
 
-stash staged, not staged and untracked changes:
+stash changes which are staged, not staged and untracked:
 git stash -u
 
 
 stash specific file:
-git stash push <file_name>
+git stash push <file>
 
 
-push changes in submodules before pushing the parent repo:
-git push --recurse-submodules=on-demand
+show the full diff of a stash:
+git stash show -p
 
 
-remove untracked files, directories and ignored files:
-git clean -fdx
+cherry-pick a commit, but add it only to the staging area:
+git cherry-pick --no-commit <sha>
 
 
 copy files between branches:
 git restore -s <different_branch> path/to/file
 
 
-remove changes not staged yet:
-git restore <file_name> (to discard a single file)
-git restore -p <file_name> (to select and discard hunks from a single file)
-git restore . (to discard all the files)
-git restore -p . (to select and discard hunks from all the files)
-
-
-remove staged changes:
-git restore -S <file_name> (to discard a single file)
-git restore -Sp <file_name> (to select and discard hunks from a single file)
+remove changes which are staged:
+git restore -S <file> (to discard a single file)
+git restore -Sp <file> (to select and discard hunks from a single file)
 git restore -S . (to discard all the files)
 git restore -Sp . (to select and discard hunks from all the files)
 
 
-undo pop:
-git reset --hard @
-git switch <my_correct_branch>
-git stash pop
+remove changes which are not staged:
+git restore <file> (to discard a single file)
+git restore -p <file> (to select and discard hunks from a single file)
+git restore . (to discard all the files)
+git restore -p . (to select and discard hunks from all the files)
 
 
 undo the most recent local commit:
-git reset --soft @^ (and keep the changes staged)
-git reset @^  (and keep the changes unstaged)
-git reset --hard @^ (and remove the changes)
+git reset --soft @^ (keeps the changes staged)
+git reset @^  (keeps the changes unstaged)
+git reset --hard @^ (removes the changes)
 
 
 undo merge:
-git reset --merge @^ (keeps uncommited changes)
+git reset --hard @^ (removes changes which are not staged)
+git reset --merge @^ (keeps changes which are not staged)
 
 
 undo rebase:
@@ -109,10 +120,6 @@ git revert --strategy resolve 864b836 (reverts a specific commit)
 
 push with force, but don't overwrite someone else's work on the remote branch:
 git push --force-with-lease --force-if-includes
-
-
-find the commit that contains a specific string:
-git log -p -S <string>
 
 --
 Tunelowanie SSH:
