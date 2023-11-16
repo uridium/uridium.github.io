@@ -103,6 +103,12 @@ git reset @^  (keeps the changes unstaged)
 git reset --hard @^ (removes the changes)
 
 
+add changes to one of the previous commits:
+git add <file>
+git commit --fixup <sha>
+git rebase -i --autosquash <sha>^
+
+
 undo merge:
 git reset --hard @^ (removes changes which are not staged)
 git reset --merge @^ (keeps changes which are not staged)
